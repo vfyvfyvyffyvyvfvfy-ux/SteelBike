@@ -2,6 +2,7 @@ const { createClient } = require('@supabase/supabase-js');
 const crypto = require('crypto');
 const axios = require('axios');
 const fs = require('fs');
+const fetch = require('node-fetch');
 // +++ Google Cloud Vision API +++
 const vision = require('@google-cloud/vision');
 
@@ -82,10 +83,45 @@ async function triggerOCRProcessing(userId, fileIds) {
 
 // +++ НОВАЯ ФУНКЦИЯ ДЛЯ РАСПОЗНАВАНИЯ С GOOGLE CLOUD VISION +++
 async function recognizeDocumentsWithVision(supabaseAdmin, filePaths, countryCode) {
+    console.log('🔍 Starting Vision OCR...');
+    console.log('📁 Files to process:', filePaths);
+    console.log('🌍 Country code:', countryCode);
+
+    // Проверяем credentials
+    if (!process.env.GOOGLE_APPLICATION_CREDENTIALS && !process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON) {
+        console.error('❌ Google Cloud credentials not configured!');
+        return {
+            error: 'Google Cloud credentials not configured',
+            full_name: null,
+            birth_date: null,
+            passport_number: null,
+            issue_date: null,
+            issuer: null,
+            registration_address: null,
+            raw_text: ''
+        };
+    }
+
     // Инициализируем Vision API клиент
-    const client = new vision.ImageAnnotatorClient({
-        keyFilename: process.env.GOOGLE_APPLICATION_CREDENTIALS || './google-credentials.json'
-    });
+    let client;
+    try {
+        client = new vision.ImageAnnotatorClient({
+            keyFilename: process.env.GOOGLE_APPLICATION_CREDENTIALS || './google-credentials.json'
+        });
+        console.log('✅ Vision API client initialized');
+    } catch (err) {
+        console.error('❌ Failed to initialize Vision API client:', err);
+        return {
+            error: `Failed to initialize Vision API: ${err.message}`,
+            full_name: null,
+            birth_date: null,
+            passport_number: null,
+            issue_date: null,
+            issuer: null,
+            registration_address: null,
+            raw_text: ''
+        };
+    }
 
     const allText = [];
     const recognizedData = {
@@ -101,38 +137,100 @@ async function recognizeDocumentsWithVision(supabaseAdmin, filePaths, countryCod
     // Скачиваем и распознаем каждый файл
     for (const path of filePaths) {
         try {
+            console.log(`📥 Downloading file: ${path}`);
+
+            // Сначала проверим, существует ли файл
+            const { data: listData, error: listError } = await supabaseAdmin.storage
+                .from('passports')
+                .list(path.split('/')[0]); // Проверяем папку пользователя
+
+            if (listError) {
+                console.error(`❌ Failed to list files in folder:`, listError);
+            } else {
+                console.log(`📁 Files in folder:`, listData.map(f => f.name));
+            }
+
+            // Пробуем скачать файл
             const { data, error } = await supabaseAdmin.storage.from('passports').download(path);
+
             if (error) {
-                console.error(`Failed to download ${path} from Supabase:`, error);
+                console.error(`❌ Failed to download ${path}:`, error);
+                console.error(`Error details:`, JSON.stringify(error, null, 2));
+
+                // Попробуем альтернативный способ - через публичный URL
+                console.log(`🔄 Trying public URL method...`);
+                const { data: publicUrlData } = supabaseAdmin.storage
+                    .from('passports')
+                    .getPublicUrl(path);
+
+                console.log(`🔗 Public URL:`, publicUrlData.publicUrl);
+
+                // Скачиваем через fetch
+                const response = await fetch(publicUrlData.publicUrl);
+                if (!response.ok) {
+                    console.error(`❌ Failed to fetch from public URL: ${response.status}`);
+                    continue;
+                }
+
+                const arrayBuffer = await response.arrayBuffer();
+                const buffer = Buffer.from(arrayBuffer);
+                console.log(`✅ File downloaded via public URL, size: ${buffer.length} bytes`);
+
+                // Продолжаем с этим buffer
+                const [result] = await client.textDetection(buffer);
+                const detections = result.textAnnotations;
+
+                console.log(`📊 Detections found: ${detections ? detections.length : 0}`);
+
+                if (detections && detections.length > 0) {
+                    const fullText = detections[0].description;
+                    allText.push(fullText);
+                    console.log(`✅ OCR success for ${path}:`, fullText.substring(0, 200) + '...');
+                }
                 continue;
             }
 
+            console.log(`✅ File downloaded: ${path}, size: ${data.size} bytes`);
+
             // Конвертируем в Buffer для Vision API
             const buffer = Buffer.from(await data.arrayBuffer());
+            console.log(`📦 Buffer created, size: ${buffer.length} bytes`);
 
             // Вызываем Vision API для распознавания текста
+            console.log(`🔍 Calling Vision API for ${path}...`);
             const [result] = await client.textDetection(buffer);
             const detections = result.textAnnotations;
+
+            console.log(`📊 Detections found: ${detections ? detections.length : 0}`);
 
             if (detections && detections.length > 0) {
                 // Первый элемент содержит весь текст
                 const fullText = detections[0].description;
                 allText.push(fullText);
-                console.log(`OCR result for ${path}:`, fullText.substring(0, 200));
+                console.log(`✅ OCR success for ${path}:`, fullText.substring(0, 200) + '...');
+            } else {
+                console.warn(`⚠️ No text detected in ${path}`);
             }
         } catch (err) {
-            console.error(`Error processing ${path}:`, err);
+            console.error(`❌ Error processing ${path}:`, err.message);
+            console.error('Stack:', err.stack);
         }
     }
 
     if (allText.length === 0) {
-        console.log("No text recognized from images.");
-        return recognizedData;
+        console.warn("⚠️ No text recognized from any images!");
+        return {
+            ...recognizedData,
+            error: 'No text recognized from images'
+        };
     }
 
     // Объединяем весь текст
     const combinedText = allText.join('\n\n');
     recognizedData.raw_text = combinedText;
+
+    console.log(`📝 Combined text length: ${combinedText.length} characters`);
+    console.log(`📄 First 500 chars:`, combinedText.substring(0, 500));
 
     // Парсим данные в зависимости от страны
     if (countryCode === 'ru') {
@@ -175,7 +273,7 @@ function extractBirthDate(text) {
     // Ищем дату рождения в формате ДД.ММ.ГГГГ или DD.MM.YYYY
     const dateMatch = text.match(/(?:Дата рождения|Date of birth|Birth)[:\s]*(\d{2}[.\-\/]\d{2}[.\-\/]\d{4})/i);
     if (dateMatch) return dateMatch[1];
-    
+
     // Альтернативный поиск любой даты
     const altMatch = text.match(/(\d{2}[.\-\/]\d{2}[.\-\/]\d{4})/);
     return altMatch ? altMatch[1] : null;
