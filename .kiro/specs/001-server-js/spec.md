@@ -46,7 +46,7 @@ As a developer, I want to manage all instance-specific configurations (like clie
 - **FR-003**: A dedicated, serverless API endpoint (e.g., `/api/config`) MUST be created to expose all non-sensitive, public configuration variables required by the frontend.
 - **FR-004**: The frontend application MUST fetch its configuration from the `/api/config` endpoint on startup.
 - **FR-005**: Sensitive information (e.g., API keys, database credentials, secret keys) MUST NOT be exposed through the `/api/config` endpoint.
-- **FR-006**: All backend services, including those on Vercel and Render (`ocr-worker`, `prizmatic-server`), MUST source their configuration from environment variables set on their respective platforms.
+- **FR-006**: All backend services, including those on Vercel and Render (`ocr-worker`, `SteelBike-server`), MUST source their configuration from environment variables set on their respective platforms.
 - **FR-007**: The solution MUST clearly document the list of all required environment variables for both the Vercel and Render environments. This includes 14 variables for Vercel (e.g., `GOOGLE_API_KEY`, `TELEGRAM_BOT_TOKEN`) and 6 for Render (e.g., `BOT_USERNAME`, `POSTGRES_URL`).
 - **FR-008**: The system MUST display a full-screen loading spinner while the initial frontend configuration is being fetched.
 
@@ -54,7 +54,7 @@ As a developer, I want to manage all instance-specific configurations (like clie
 - **Public Configuration**: A JSON object served by the `/api/config` endpoint, containing key-value pairs for all public, client-facing settings. Example:
   ```json
   {
-    "telegramBotName": "ClientPrizmaticBot",
+    "telegramBotName": "ClientSteelBikeBot",
     "supportUrl": "https://t.me/client_support",
     "termsOfServiceUrl": "/docs/client_terms.html"
   }

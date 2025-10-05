@@ -31,7 +31,7 @@
     4. Call `hideLoadingSpinner()` after initialization is complete.
 
 ## Phase 3.4: Frontend Refactoring
-- [x] T010 [P] Search the entire `/site` directory for hardcoded values like `'PrizmaticBot'` or `'https://prizmatic.ru'` and replace them with lookups from the `window.APP_CONFIG` object.
+- [x] T010 [P] Search the entire `/site` directory for hardcoded values like `'SteelBikeBot'` or `'https://SteelBike.ru'` and replace them with lookups from the `window.APP_CONFIG` object.
 - [x] T011 [P] Specifically, refactor `site/branding.js` to use the new configuration object for any brand-related names or links.
 - [ ] T012 [P] Refactor `site/index.html`, `site/map.html`, and any other HTML files containing hardcoded, client-specific links or text to be populated dynamically by JavaScript using the global config.
 

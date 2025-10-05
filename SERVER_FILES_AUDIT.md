@@ -2,7 +2,7 @@
 
 ## Проверенные файлы:
 
-### 1. prizmatic-server/server.js ✅
+### 1. SteelBike-server/server.js ✅
 
 **Статус**: Все правильно
 
@@ -11,7 +11,7 @@
 - `process.env.SUPABASE_URL` - URL Supabase
 - `process.env.SUPABASE_SERVICE_ROLE_KEY` - Service Role ключ
 - `process.env.TELEGRAM_BOT_TOKEN` - токен Telegram бота
-- `process.env.BOT_USERNAME` - имя пользователя бота (default: 'pr1zmaticbot')
+- `process.env.BOT_USERNAME` - имя пользователя бота (default: 'steelbikebot')
 - `process.env.WEBAPP_NAME` - короткое имя Web App (default: 'app')
 
 **Что делает**:
@@ -62,12 +62,12 @@
 
 ### ⚠️ Что нужно проверить:
 
-1. **Переменные окружения на Render.com** (для prizmatic-server):
+1. **Переменные окружения на Render.com** (для SteelBike-server):
    ```
    SUPABASE_URL=https://avamqfmuhiwtlumjkzmv.supabase.co
    SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
-   TELEGRAM_BOT_TOKEN=8126548981:AAGC86ZaJ0SYLICC0WbpS7aGOhU9t8iz_a4
-   BOT_USERNAME=PRIZMATICbot (или ваше актуальное имя)
+   TELEGRAM_BOT_TOKEN=8161502944:AAG7jnhO963k4w0RXAy808qL9IMVn3sASGQ
+   BOT_USERNAME=SteelBikebot (или ваше актуальное имя)
    WEBAPP_NAME=app
    PORT=10000
    ```
@@ -82,13 +82,13 @@
    ```
 
 3. **BOT_USERNAME** - проверить актуальное имя бота:
-   - Текущее значение по умолчанию: `pr1zmaticbot`
+   - Текущее значение по умолчанию: `steelbikebot`
    - Нужно обновить на реальное имя вашего бота
 
 ### 📝 Рекомендации:
 
 1. **Создать .env.example для каждого сервиса**:
-   - `prizmatic-server/.env.example`
+   - `SteelBike-server/.env.example`
    - `ocr-worker/.env.example`
 
 2. **Документировать все env vars** в README каждого сервиса

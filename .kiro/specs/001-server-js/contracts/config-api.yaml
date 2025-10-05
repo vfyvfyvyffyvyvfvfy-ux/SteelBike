@@ -40,11 +40,11 @@ components:
         telegramBotUsername:
           type: string
           description: The username of the Telegram bot (without the `@`).
-          example: "ClientPrizmaticBot"
+          example: "ClientSteelBikeBot"
         websiteUrl:
           type: string
           description: The main URL for the application.
-          example: "https://client.prizmatic.ru"
+          example: "https://client.SteelBike.ru"
         supportUrl:
           type: string
           description: The URL for the customer support chat or page.

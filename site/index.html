@@ -74,7 +74,7 @@
             if (appScreen) appScreen.style.display = 'none';
 
             if (isInTelegram && !userId) {
-                // ИЗМЕНЕНИЕ 1: Убрали текст "PRIZMATIC" из заголовка экрана загрузки для лучшего центрирования.
+                // ИЗМЕНЕНИЕ 1: Убрали текст "SteelBike" из заголовка экрана загрузки для лучшего центрирования.
                 const loadingHTML = `
                 <div class="app-screen loading-container" style="display: flex; text-align: center; justify-content: center; align-items: center; height: 100vh; width: 100vw; position: fixed; top: 0; left: 0; background: white; z-index: 1000;">
                     <div class="app-content" style="justify-content: center;">
@@ -130,10 +130,10 @@
                         messageDiv.style.width = '100vw';
                         messageDiv.style.height = '100vh';
                         messageDiv.style.zIndex = '10000';
-                        // ИЗМЕНЕНИЕ 2: Заменили "Bike App" на "PRIZMATIC" и добавили элемент для отсчета.
+                        // ИЗМЕНЕНИЕ 2: Заменили "Bike App" на "SteelBike" и добавили элемент для отсчета.
                         messageDiv.innerHTML = `
                         <div class="app-content" style="justify-content: center;">
-                            <header class="app-header" style="text-align: center;"><h1>PRIZMATIC</h1></header>
+                            <header class="app-header" style="text-align: center;"><h1>SteelBike</h1></header>
                             <main class="app-main" style="text-align: center;">
                                 <h2>Вы не зарегистрированы</h2>
                                 <p style="color: var(--text-secondary); margin: 20px 0;">Пройдите пожалуйста быструю регистрацию и вам откроется доступ к приложению.</p>
@@ -149,7 +149,7 @@
                         const countdownEl = document.getElementById('countdown');
 
                         const redirect = () => {
-                            const botUsername = 'pr1zmaticbot';
+                            const botUsername = 'steelbikebot';
                             const registrationLink = `https://t.me/${botUsername}?start=register`;
 
                             // Сначала отправляем команду на регистрацию...
@@ -198,7 +198,7 @@
                         if (countdown <= 0) {
                             clearInterval(interval);
                             const tg = window.Telegram.WebApp;
-                            const botUsername = 'pr1zmaticbot';
+                            const botUsername = 'steelbikebot';
                             const registrationLink = `https://t.me/${botUsername}?start=register`;
 
                             // Сначала отправляем команду на регистрацию...
@@ -216,7 +216,7 @@
                     btn.addEventListener('click', () => {
                         clearInterval(interval);
                         const tg = window.Telegram.WebApp;
-                        const botUsername = 'pr1zmaticbot';
+                        const botUsername = 'steelbikebot';
                         const registrationLink = `https://t.me/${botUsername}?start=register`;
 
                         // Сначала отправляем команду на регистрацию...
@@ -1224,12 +1224,12 @@
 
                 // 1. Формируем твою реферальную ссылку на БОТА, а не на сайт.
                 //    Пользователь должен запустить бота, чтобы зарегистрироваться.
-                const botUsername = 'pr1zmaticbot'; // <-- Убедись, что имя бота правильное
+                const botUsername = 'steelbikebot'; // <-- Убедись, что имя бота правильное
                 const userId = localStorage.getItem('userId'); // Берем ID текущего пользователя для рефералки
                 const referralLink = `https://t.me/${botUsername}?start=${userId}`;
 
                 // 2. Готовим текст сообщения, который будет предложен другу
-                const shareText = 'Привет! Присоединяйся к PRIZMATIC — удобному сервису аренды электротранспорта. Регистрируйся по моей ссылке!';
+                const shareText = 'Привет! Присоединяйся к SteelBike — удобному сервису аренды электротранспорта. Регистрируйся по моей ссылке!';
 
                 // 3. Кодируем ссылку и текст для URL
                 const encodedUrl = encodeURIComponent(referralLink);
@@ -1472,22 +1472,22 @@
                 }
             }
 
-            // Элементы для работы с PRIZMATIC тарифами
+            // Элементы для работы с SteelBike тарифами
             const tariffModal = document.getElementById('tariff-modal');
             const tariffModalCloseBtn = document.getElementById('tariff-modal-close-btn');
 
             /**
              * Настраиваем внешний вид кнопок на главном экране в зависимости
-             * от выбранного способа оплаты (QR или PRIZMATIC). По умолчанию
+             * от выбранного способа оплаты (QR или SteelBike). По умолчанию
              * отображается кнопка «Сканировать QR‑код» и три дополнительных
-             * действия. При выборе провайдера PRIZMATIC основная кнопка
+             * действия. При выборе провайдера SteelBike основная кнопка
              * переименовывается в «Тарифы», а второстепенные кнопки для
              * сканирования и бронирования скрываются, оставляя только
              * возможность ввести ID.
              */
             function applyProviderUI() {
-                const provider = localStorage.getItem('paymentProvider') || 'PRIZMATIC';
-                if (provider === 'PRIZMATIC') {
+                const provider = localStorage.getItem('paymentProvider') || 'SteelBike';
+                if (provider === 'SteelBike') {
                     // Переименовываем основную кнопку
                     scanBtn.textContent = 'Тарифы';
                     // Скрываем иконку для сканирования и кнопку бронирования
@@ -1520,7 +1520,7 @@
                     const _bookingBtn = document.getElementById('booking-btn');
                     const _provider = localStorage.getItem('paymentProvider') || 'qr';
                     if (!_scanBtn) return;
-                    if (_provider === 'PRIZMATIC') {
+                    if (_provider === 'SteelBike') {
                         _scanBtn.textContent = 'Тарифы';
                         if (_scanIconBtn) _scanIconBtn.style.display = 'none';
                         if (_bookingBtn) _bookingBtn.style.display = '';
@@ -1549,7 +1549,7 @@
 
             /**
              * Обновляет подпись на изображении велосипеда. Если пользователь
-             * выбирает тариф PRIZMATIC, мы отображаем название тарифа (Бронза,
+             * выбирает тариф SteelBike, мы отображаем название тарифа (Бронза,
              * Серебро или Золото). В других случаях отображаем номер
              * велосипеда, например «00001». После обновления сразу
              * сохраняем состояние, чтобы подпись сохранилась при перезагрузке.
@@ -1611,7 +1611,7 @@
                 }
             };
 
-            // === ЛОГИКА ДЛЯ ТАРИФОВ PRIZMATIC ===
+            // === ЛОГИКА ДЛЯ ТАРИФОВ SteelBike ===
             // Определяем данные по тарифам: стоимость и длительность аренды (в днях)
             const tariffData = {
                 bronze: { title: 'Бронза', cost: 1000, days: 3, deposit: 0 },
@@ -1643,7 +1643,7 @@
             } catch (err) {
                 console.warn('Failed to parse tariffMap', err);
             }
-            // Обработчик аренды по выбранному тарифу PRIZMATIC
+            // Обработчик аренды по выбранному тарифу SteelBike
             const processTariffRental = async (tariffKey, selectedExt = null, bikeCode = null) => {
                 const tariff = tariffData[tariffKey];
                 if (!tariff || !tariff.id) {
@@ -2082,14 +2082,14 @@
                 if (e.target === tariffModal) tariffModal.classList.add('hidden');
             });
 
-            // ========== ПОДДЕРЖКА ДИНАМИЧЕСКОЙ ЗАГРУЗКИ ТАРИФОВ PRIZMATIC ==========
+            // ========== ПОДДЕРЖКА ДИНАМИЧЕСКОЙ ЗАГРУЗКИ ТАРИФОВ SteelBike ==========
             /**
              * Загружает список тарифов из API (или localStorage, если сеть недоступна).
              * Обновляет содержимое списка в модальном окне и сохраняет map в sessionStorage,
              * чтобы функции оформления аренды могли использовать актуальные данные (цена,
              * длительность, депозит, extensions).
              */
-            async function loadPRIZMATICTariffs() {
+            async function loadSteelBikeTariffs() {
                 let data;
                 let userCity = 'Москва'; // По умолчанию
                 
@@ -2242,9 +2242,9 @@
             scanBtn.addEventListener('click', () => {
                 // В зависимости от выбранного способа оплаты открываем соответствующее окно
                 const provider = localStorage.getItem('paymentProvider') || 'qr';
-                if (provider === 'PRIZMATIC') {
+                if (provider === 'SteelBike') {
                     // Перед открытием окна подгружаем актуальные тарифы
-                    loadPRIZMATICTariffs().then(() => {
+                    loadSteelBikeTariffs().then(() => {
                         tariffModal.classList.remove('hidden');
                     });
                 } else {
@@ -2404,7 +2404,7 @@
                 if (scan) {
                     e.preventDefault();
                     // Всегда открываем модальное окно с тарифами
-                    loadPRIZMATICTariffs().then(() => {
+                    loadSteelBikeTariffs().then(() => {
                         const modal = document.getElementById('tariff-modal');
                         if (modal) modal.classList.remove('hidden');
                     });
@@ -2571,7 +2571,7 @@
             }
         });
     </script>
-    <!-- Общий скрипт меню PRIZMATIC, подключается после основного скрипта -->
+    <!-- Общий скрипт меню SteelBike, подключается после основного скрипта -->
     <script src="menu.js" defer></script>
 
     <!-- НОВЫЙ HTML И СТИЛИ ДЛЯ УВЕДОМЛЕНИЯ О ПОДПИСАНИИ -->

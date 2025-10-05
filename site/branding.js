@@ -2,7 +2,7 @@
 (function () {
   function setBrand() {
     // Use the globally available configuration
-    const BRAND = window.APP_CONFIG?.telegramBotUsername || 'PRIZMATIC'; // Fallback to default
+    const BRAND = window.APP_CONFIG?.telegramBotUsername || 'SteelBike'; // Fallback to default
 
     var header = document.querySelector('.app-header');
     if (!header) return;

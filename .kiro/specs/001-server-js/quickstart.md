@@ -12,7 +12,7 @@ This guide provides the steps to manually verify that the configuration has been
 1.  **Set Environment Variables**
     - In your root `.env` file, define the following public variables:
       ```
-      TELEGRAM_BOT_USERNAME=TestPrizmaticBot
+      TELEGRAM_BOT_USERNAME=TestSteelBikeBot
       WEBSITE_URL=http://localhost:3000
       ```
 
@@ -33,7 +33,7 @@ This guide provides the steps to manually verify that the configuration has been
     - **Expected Result**: The response body should be a JSON object containing the values you set in your `.env` file:
       ```json
       {
-        "telegramBotUsername": "TestPrizmaticBot",
+        "telegramBotUsername": "TestSteelBikeBot",
         "websiteUrl": "http://localhost:3000"
       }
       ```

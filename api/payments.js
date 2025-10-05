@@ -174,7 +174,7 @@ async function handleSaveCard({ userId }) {
     if (!normalizedPhone) throw new Error(`Client ${userId} has no phone number for YooKassa receipts.`);
 
     const amount = 1.00; // Small amount for card verification
-    const description = 'Привязка карты для PRIZMATIC';
+    const description = 'Привязка карты для SteelBike';
     const idempotenceKey = crypto.randomUUID();
 
     const paymentData = {
@@ -272,7 +272,7 @@ async function handleCreatePayment(body) {
     } else if (amountFromClient) {
         paymentType = 'top-up';
         successRedirectUrl = 'https://steel-bike.vercel.app/?topup_success=true';
-        description = 'Пополнение баланса PRIZMATIC';
+        description = 'Пополнение баланса SteelBike';
         amount = Number.parseFloat(amountFromClient);
     } else {
         throw new Error('Invalid request: amount or tariffId is missing.');

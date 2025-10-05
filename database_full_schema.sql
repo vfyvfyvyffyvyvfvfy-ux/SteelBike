@@ -1,5 +1,5 @@
 -- ============================================
--- PRIZMATIC Full Database Schema
+-- SteelBike Full Database Schema
 -- Creates all tables from scratch
 -- ============================================
 

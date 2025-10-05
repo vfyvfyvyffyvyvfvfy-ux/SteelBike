@@ -13,8 +13,8 @@ Represents the set of public-safe configuration variables needed by the frontend
 
 | Name | Type | Description | Example | Required |
 |---|---|---|---|---|
-| `telegramBotUsername` | string | The username of the Telegram bot (without the `@`). | `"ClientPrizmaticBot"` | Yes |
-| `websiteUrl` | string | The main URL for the application. | `"https://client.prizmatic.ru"` | Yes |
+| `telegramBotUsername` | string | The username of the Telegram bot (without the `@`). | `"ClientSteelBikeBot"` | Yes |
+| `websiteUrl` | string | The main URL for the application. | `"https://client.SteelBike.ru"` | Yes |
 | `supportUrl` | string | The URL for the customer support chat or page. | `"https://t.me/client_support"` | No |
 | `termsOfServiceUrl` | string | URL to the terms of service document. | `"/docs/client_terms.html"` | No |
 

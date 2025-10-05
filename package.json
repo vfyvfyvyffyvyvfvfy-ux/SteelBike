@@ -1,7 +1,7 @@
 {
-  "name": "PRIZMATIC-vercel-app",
+  "name": "SteelBike-vercel-app",
   "version": "1.0.0",
-  "description": "PRIZMATIC Web App and Telegram Bot for Vercel",
+  "description": "SteelBike Web App and Telegram Bot for Vercel",
   "main": "telegram-bot.js",
   "scripts": {
     "start": "node telegram-bot.js",
@@ -28,11 +28,11 @@
   "keywords": [
     "telegram",
     "bot",
-    "PRIZMATIC",
+    "SteelBike",
     "webapp",
     "vercel"
   ],
-  "author": "PRIZMATIC",
+  "author": "SteelBike",
   "license": "MIT",
   "repository": {
     "type": "git",

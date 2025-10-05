@@ -16,14 +16,14 @@ SUPABASE_URL=https://avamqfmuhiwtlumjkzmv.supabase.co
 SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF2YW1xZm11aGl3dGx1bWprem12Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY2NjMyODcsImV4cCI6MjA3MjIzOTI4N30.EwEPM0pObAd3v_NXI89DLcgKVYrUiOn7iHuCXXaqU4I
 GOOGLE_API_KEY=AIzaSyCds0FmujbSW88GPJwXeyhIjD8JOdyx5uU
 GEMINI_API_KEY=AIzaSyCds0FmujbSW88GPJwXeyhIjD8JOdyx5uU
-TELEGRAM_BOT_TOKEN=8126548981:AAGC86ZaJ0SYLICC0WbpS7aGOhU9t8iz_a4
+TELEGRAM_BOT_TOKEN=8161502944:AAG7jnhO963k4w0RXAy808qL9IMVn3sASGQ
 YOOKASSA_SHOP_ID=1107459
 YOOKASSA_SECRET_KEY=live_oTnWf7sfV0ePngXm7eGdeoXewCYCbW2RXfn0PacBlrE
-BOT_NOTIFY_URL=https://gogovorprizmatic.onrender.com/notify
+BOT_NOTIFY_URL=https://gogovorSteelBike.onrender.com/notify
 OCR_WORKER_URL=https://832a1274ed7e.ngrok-free.app
 ADMIN_SECRET_KEY=your_super_secret_admin_key
 INTERNAL_SECRET=MySuperSecretKeyForBikeAppOCR123!
-CONTRACTS_API_URL=https://gogovorprizmatic.onrender.com
+CONTRACTS_API_URL=https://gogovorSteelBike.onrender.com
 ```
 
 4. Выберите окружения: **Production**, **Preview**, **Development** (или только Production)

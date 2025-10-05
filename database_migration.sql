@@ -1,5 +1,5 @@
 -- ============================================
--- PRIZMATIC Database Migration Script
+-- SteelBike Database Migration Script
 -- Adds missing columns and functions
 -- ============================================
 

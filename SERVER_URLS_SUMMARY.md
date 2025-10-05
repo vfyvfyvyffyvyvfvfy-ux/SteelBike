@@ -3,15 +3,15 @@
 ## 🌐 Основные серверы:
 
 ### 1. **Vercel (Основное приложение)**
-- **URL**: `https://prizmatic-2004.vercel.app` (или `https://go-go-b-ike.vercel.app`)
+- **URL**: `https://SteelBike-2004.vercel.app` (или `https://go-go-b-ike.vercel.app`)
 - **Используется в**:
   - `bot.py` - для регистрации пользователей
   - `api/payments.js` - для redirect после оплаты
   - Документация
 - **Что делает**: Основное веб-приложение, API endpoints, фронтенд
 
-### 2. **Render.com - Contracts API (prizmatic-server)**
-- **URL**: `https://gogovorprizmatic.onrender.com`
+### 2. **Render.com - Contracts API (SteelBike-server)**
+- **URL**: `https://gogovorSteelBike.onrender.com`
 - **Переменная**: `CONTRACTS_API_URL`
 - **Используется в**:
   - `site/config.js`
@@ -23,7 +23,7 @@
   - Отправка Telegram уведомлений
 
 ### 3. **Render.com - Bot Notify**
-- **URL**: `https://gogovorprizmatic.onrender.com/notify`
+- **URL**: `https://gogovorSteelBike.onrender.com/notify`
 - **Переменная**: `BOT_NOTIFY_URL`
 - **Используется в**:
   - `site/config.js`
@@ -51,16 +51,16 @@
 
 ### Frontend (site/config.js):
 ```javascript
-BOT_NOTIFY_URL: 'https://gogovorprizmatic.onrender.com/notify'
+BOT_NOTIFY_URL: 'https://gogovorSteelBike.onrender.com/notify'
 OCR_WORKER_URL: 'https://832a1274ed7e.ngrok-free.app'
-CONTRACTS_API_URL: 'https://gogovorprizmatic.onrender.com'
+CONTRACTS_API_URL: 'https://gogovorSteelBike.onrender.com'
 ```
 
 ### Backend (api/config.js):
 ```javascript
-BOT_NOTIFY_URL: process.env.BOT_NOTIFY_URL || 'https://gogovorprizmatic.onrender.com/notify'
+BOT_NOTIFY_URL: process.env.BOT_NOTIFY_URL || 'https://gogovorSteelBike.onrender.com/notify'
 OCR_WORKER_URL: process.env.OCR_WORKER_URL || 'https://832a1274ed7e.ngrok-free.app'
-CONTRACTS_API_URL: process.env.CONTRACTS_API_URL || 'https://gogovorprizmatic.onrender.com'
+CONTRACTS_API_URL: process.env.CONTRACTS_API_URL || 'https://gogovorSteelBike.onrender.com'
 ```
 
 ### Telegram Bot (bot.py):
@@ -82,7 +82,7 @@ successRedirectUrl: 'https://steel-bike.vercel.app/?rental_success=true'
 ## 🔧 Что нужно обновить:
 
 ### 1. **Vercel URL** (если изменился домен):
-Заменить `https://prizmatic-2004.vercel.app` на актуальный в:
+Заменить `https://SteelBike-2004.vercel.app` на актуальный в:
 - ✅ `bot.py` (3 места)
 - ✅ `api/payments.js` (4 места)
 - ✅ Документация
@@ -94,7 +94,7 @@ successRedirectUrl: 'https://steel-bike.vercel.app/?rental_success=true'
 - ✅ Переменные окружения Vercel
 
 ### 3. **Contracts API URL** (если изменился):
-Проверить `https://gogovorprizmatic.onrender.com` актуален ли
+Проверить `https://gogovorSteelBike.onrender.com` актуален ли
 
 ---
 
@@ -104,8 +104,8 @@ successRedirectUrl: 'https://steel-bike.vercel.app/?rental_success=true'
 
 **bot.py** - добавить env vars:
 ```python
-WEBAPP_REGISTER_API = os.getenv('WEBAPP_URL', 'https://prizmatic-2004.vercel.app') + '/api/telegram-register'
-BOT_REGISTER_API = os.getenv('WEBAPP_URL', 'https://prizmatic-2004.vercel.app') + '/api/auth'
+WEBAPP_REGISTER_API = os.getenv('WEBAPP_URL', 'https://SteelBike-2004.vercel.app') + '/api/telegram-register'
+BOT_REGISTER_API = os.getenv('WEBAPP_URL', 'https://SteelBike-2004.vercel.app') + '/api/auth'
 WEB_APP_URL = os.getenv('WEBAPP_URL', 'https://steel-bike.vercel.app/')
 ```
 
@@ -113,7 +113,7 @@ WEB_APP_URL = os.getenv('WEBAPP_URL', 'https://steel-bike.vercel.app/')
 ```javascript
 const BASE_URL = process.env.VERCEL_URL 
   ? `https://${process.env.VERCEL_URL}` 
-  : 'https://prizmatic-2004.vercel.app';
+  : 'https://SteelBike-2004.vercel.app';
 ```
 
 ### 2. Заменить Ngrok на постоянный URL:
@@ -128,10 +128,10 @@ const BASE_URL = process.env.VERCEL_URL
 ```javascript
 // config/servers.js
 module.exports = {
-  MAIN_APP: process.env.VERCEL_URL || 'https://prizmatic-2004.vercel.app',
-  CONTRACTS_API: process.env.CONTRACTS_API_URL || 'https://gogovorprizmatic.onrender.com',
+  MAIN_APP: process.env.VERCEL_URL || 'https://SteelBike-2004.vercel.app',
+  CONTRACTS_API: process.env.CONTRACTS_API_URL || 'https://gogovorSteelBike.onrender.com',
   OCR_WORKER: process.env.OCR_WORKER_URL || 'https://832a1274ed7e.ngrok-free.app',
-  BOT_NOTIFY: process.env.BOT_NOTIFY_URL || 'https://gogovorprizmatic.onrender.com/notify'
+  BOT_NOTIFY: process.env.BOT_NOTIFY_URL || 'https://gogovorSteelBike.onrender.com/notify'
 };
 ```
 
@@ -159,7 +159,7 @@ module.exports = {
 
 ### Render.com:
 1. Зайти на render.com
-2. Открыть сервис (prizmatic-server)
+2. Открыть сервис (SteelBike-server)
 3. Скопировать URL из Dashboard
 
 ### Ngrok:
