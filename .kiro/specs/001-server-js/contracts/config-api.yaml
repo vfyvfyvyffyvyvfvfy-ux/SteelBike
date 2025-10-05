@@ -1,0 +1,58 @@
+openapi: 3.0.0
+info:
+  title: Public Configuration API
+  version: 1.0.0
+  description: API for fetching public frontend configuration.
+
+paths:
+  /api/config:
+    get:
+      summary: Retrieve Public Configuration
+      description: >
+        Fetches a JSON object containing non-sensitive, public configuration variables 
+        required by the frontend application.
+      operationId: getPublicConfig
+      tags:
+        - Configuration
+      responses:
+        '200':
+          description: Successful response with public configuration data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublicConfiguration'
+        '500':
+          description: Internal Server Error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Failed to load configuration."
+
+components:
+  schemas:
+    PublicConfiguration:
+      type: object
+      properties:
+        telegramBotUsername:
+          type: string
+          description: The username of the Telegram bot (without the `@`).
+          example: "ClientPrizmaticBot"
+        websiteUrl:
+          type: string
+          description: The main URL for the application.
+          example: "https://client.prizmatic.ru"
+        supportUrl:
+          type: string
+          description: The URL for the customer support chat or page.
+          example: "https://t.me/client_support"
+        termsOfServiceUrl:
+          type: string
+          description: URL to the terms of service document.
+          example: "/docs/client_terms.html"
+      required:
+        - telegramBotUsername
+        - websiteUrl
