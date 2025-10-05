@@ -65,15 +65,15 @@ CONTRACTS_API_URL: process.env.CONTRACTS_API_URL || 'https://gogovorprizmatic.on
 
 ### Telegram Bot (bot.py):
 ```python
-WEBAPP_REGISTER_API = 'https://prizmatic-2004.vercel.app/api/telegram-register'
-BOT_REGISTER_API = 'https://prizmatic-2004.vercel.app/api/auth'
-WEB_APP_URL = 'https://prizmatic-2004.vercel.app/'
+WEBAPP_REGISTER_API = 'https://steel-bike.vercel.app/api/telegram-register'
+BOT_REGISTER_API = 'https://steel-bike.vercel.app/api/auth'
+WEB_APP_URL = 'https://steel-bike.vercel.app/'
 ```
 
 ### Payments (api/payments.js):
 ```javascript
-return_url: 'https://prizmatic-2004.vercel.app/profile.html?card_saved=true'
-successRedirectUrl: 'https://prizmatic-2004.vercel.app/?rental_success=true'
+return_url: 'https://steel-bike.vercel.app/profile.html?card_saved=true'
+successRedirectUrl: 'https://steel-bike.vercel.app/?rental_success=true'
 // и другие redirect URLs
 ```
 
@@ -106,7 +106,7 @@ successRedirectUrl: 'https://prizmatic-2004.vercel.app/?rental_success=true'
 ```python
 WEBAPP_REGISTER_API = os.getenv('WEBAPP_URL', 'https://prizmatic-2004.vercel.app') + '/api/telegram-register'
 BOT_REGISTER_API = os.getenv('WEBAPP_URL', 'https://prizmatic-2004.vercel.app') + '/api/auth'
-WEB_APP_URL = os.getenv('WEBAPP_URL', 'https://prizmatic-2004.vercel.app/')
+WEB_APP_URL = os.getenv('WEBAPP_URL', 'https://steel-bike.vercel.app/')
 ```
 
 **api/payments.js** - использовать env var:
