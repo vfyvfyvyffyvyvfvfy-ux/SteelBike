@@ -4,7 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="/api/config"></script>
+    <!-- Load static config as fallback first -->
+    <script src="./config.js"></script>
+    <!-- Then try to load dynamic config from API (will override if successful) -->
+    <script src="/api/config" onerror="console.log('Using static config.js as fallback')"></script>
     <title>SteelBike - Статистика</title>
     <link rel="stylesheet" href="style.css?v=7.7">
     <link rel="stylesheet" href="blend.css">

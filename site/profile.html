@@ -694,7 +694,10 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.41.0/dist/umd/supabase.min.js"></script>
-    <script src="/api/config"></script>
+    <!-- Load static config as fallback first -->
+    <script src="./config.js"></script>
+    <!-- Then try to load dynamic config from API (will override if successful) -->
+    <script src="/api/config" onerror="console.log('Using static config.js as fallback')"></script>
     <script>
         const SUPABASE_URL = window.CONFIG.SUPABASE_URL;
         const SUPABASE_ANON_KEY = window.CONFIG.SUPABASE_ANON_KEY;
