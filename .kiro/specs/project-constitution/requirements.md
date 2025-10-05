@@ -299,18 +299,19 @@ app_settings     -- Настройки приложения
 
 **Vercel (Production)**:
 ```
-SUPABASE_URL=https://avamqfmuhiwtlumjkzmv.supabase.co
+SUPABASE_URL=https://qjrycnazrzetnciyqakm.supabase.co
 SUPABASE_ANON_KEY=<anon_key>
 SUPABASE_SERVICE_ROLE_KEY=<service_role_key>
-TELEGRAM_BOT_TOKEN=<bot_token>
-GOOGLE_API_KEY=<gemini_api_key>
-YOOKASSA_SHOP_ID=<shop_id>
+TELEGRAM_BOT_TOKEN=8161502944:AAG7jnhO963k4w0RXAy808qL9IMVn3sASGQ
+GOOGLE_API_KEY=AIzaSyCds0FmujbSW88GPJwXeyhIjD8JOdyx5uU
+GEMINI_API_KEY=AIzaSyCds0FmujbSW88GPJwXeyhIjD8JOdyx5uU
+YOOKASSA_SHOP_ID=1165363
 YOOKASSA_SECRET_KEY=<secret_key>
-OCR_WORKER_URL=https://ocr-worker.onrender.com
-BOT_NOTIFY_URL=https://bot.onrender.com/notify
-CONTRACTS_API_URL=https://contracts.onrender.com
-ADMIN_SECRET_KEY=<admin_secret>
-INTERNAL_SECRET=<internal_secret>
+OCR_WORKER_URL=https://832a1274ed7e.ngrok-free.app
+BOT_NOTIFY_URL=https://gemini-npxg.onrender.com/notify
+CONTRACTS_API_URL=https://gemini-npxg.onrender.com
+ADMIN_SECRET_KEY=your_super_secret_admin_key
+INTERNAL_SECRET=MySuperSecretKeyForBikeAppOCR123!
 ```
 
 **OCR Worker (Render)**:
@@ -335,10 +336,16 @@ ADMIN_SECRET_KEY=<admin_secret>
 
 - `.env` - локальные переменные (не коммитится)
 - `.env.example` - шаблон переменных
-- `site/config.js` - frontend конфигурация
+- `site/config.js` - статический frontend конфигурация (fallback)
+- `api/config.js` - динамический endpoint для конфигурации
 - `site/config.example.js` - шаблон frontend конфигурации
 - `vercel.json` - конфигурация Vercel
 - `netlify.toml` - конфигурация Netlify (альтернатива)
+
+**Важно**: `index.html` загружает конфигурацию в два этапа:
+1. Сначала загружается статический `config.js` (fallback)
+2. Затем пытается загрузить `/api/config` (переопределяет значения из env)
+3. Если API недоступен, используется статический файл
 
 ## 7. Структура проекта
 

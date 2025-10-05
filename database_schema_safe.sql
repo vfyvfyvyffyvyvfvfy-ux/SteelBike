@@ -1,34 +1,13 @@
 -- ============================================
--- SteelBike Full Database Schema
--- Creates all tables from scratch
+-- SteelBike Database Schema (Safe Version)
+-- This version skips extension creation to avoid conflicts
 -- ============================================
-
--- Enable required extensions
-CREATE EXTENSION IF NOT EXISTS postgis;
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-
--- ============================================
--- DROP EXISTING TABLES (CAREFUL!)
--- Uncomment only if you want to recreate everything
--- ============================================
--- DROP TABLE IF EXISTS public.rental_batteries CASCADE;
--- DROP TABLE IF EXISTS public.payments CASCADE;
--- DROP TABLE IF EXISTS public.bookings CASCADE;
--- DROP TABLE IF EXISTS public.rentals CASCADE;
--- DROP TABLE IF EXISTS public.bikes CASCADE;
--- DROP TABLE IF EXISTS public.batteries CASCADE;
--- DROP TABLE IF EXISTS public.support_messages CASCADE;
--- DROP TABLE IF EXISTS public.contract_templates CASCADE;
--- DROP TABLE IF EXISTS public.tariffs CASCADE;
--- DROP TABLE IF EXISTS public.clients CASCADE;
--- DROP TABLE IF EXISTS public.app_settings CASCADE;
--- NOTE: spatial_ref_sys is managed by PostGIS extension, do not drop or create manually
 
 -- ============================================
 -- CREATE TABLES IN CORRECT ORDER
 -- ============================================
 
--- 1. app_settings (no dependencies)
+-- 1. app_settings
 CREATE TABLE IF NOT EXISTS public.app_settings (
     key text NOT NULL,
     value jsonb,
@@ -36,10 +15,7 @@ CREATE TABLE IF NOT EXISTS public.app_settings (
     CONSTRAINT app_settings_pkey PRIMARY KEY (key)
 );
 
--- NOTE: spatial_ref_sys table is automatically created by PostGIS extension
--- Do not attempt to create it manually as it will cause "relation already exists" error
-
--- 2. clients (no dependencies)
+-- 2. clients
 CREATE TABLE IF NOT EXISTS public.clients (
     id uuid NOT NULL DEFAULT gen_random_uuid(),
     created_at timestamp with time zone DEFAULT now(),
@@ -64,7 +40,7 @@ CREATE TABLE IF NOT EXISTS public.clients (
     CONSTRAINT clients_pkey PRIMARY KEY (id)
 );
 
--- 3. tariffs (no dependencies)
+-- 3. tariffs
 CREATE TABLE IF NOT EXISTS public.tariffs (
     id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
     created_at timestamp with time zone DEFAULT now(),
@@ -79,7 +55,7 @@ CREATE TABLE IF NOT EXISTS public.tariffs (
     CONSTRAINT tariffs_pkey PRIMARY KEY (id)
 );
 
--- 4. contract_templates (no dependencies)
+-- 4. contract_templates
 CREATE TABLE IF NOT EXISTS public.contract_templates (
     id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
     created_at timestamp with time zone DEFAULT now(),
@@ -89,19 +65,18 @@ CREATE TABLE IF NOT EXISTS public.contract_templates (
     CONSTRAINT contract_templates_pkey PRIMARY KEY (id)
 );
 
--- 5. batteries (no dependencies)
+-- 5. batteries
 CREATE TABLE IF NOT EXISTS public.batteries (
     id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
     serial_number text NOT NULL UNIQUE,
     capacity_wh integer,
     description text,
-    status text NOT NULL DEFAULT 'available'::text CHECK (status = ANY (ARRAY['available'::text, 'in_use'::text, 'charging'::text, 'maintenance'::text])),
+    status text NOT NULL DEFAULT 'available'::text,
     created_at timestamp with time zone DEFAULT now(),
     CONSTRAINT batteries_pkey PRIMARY KEY (id)
 );
 
--- 6. bikes (depends on clients, tariffs)
--- Create sequence first
+-- 6. bikes
 CREATE SEQUENCE IF NOT EXISTS bikes_id_seq;
 
 CREATE TABLE IF NOT EXISTS public.bikes (
@@ -127,7 +102,7 @@ CREATE TABLE IF NOT EXISTS public.bikes (
     CONSTRAINT bikes_tariff_id_fkey FOREIGN KEY (tariff_id) REFERENCES public.tariffs(id)
 );
 
--- 7. bookings (depends on clients)
+-- 7. bookings
 CREATE TABLE IF NOT EXISTS public.bookings (
     id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
     user_id uuid NOT NULL,
@@ -139,7 +114,7 @@ CREATE TABLE IF NOT EXISTS public.bookings (
     CONSTRAINT bookings_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.clients(id)
 );
 
--- 8. rentals (depends on clients, tariffs, bikes)
+-- 8. rentals
 CREATE TABLE IF NOT EXISTS public.rentals (
     id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
     created_at timestamp with time zone DEFAULT now(),
@@ -157,7 +132,7 @@ CREATE TABLE IF NOT EXISTS public.rentals (
     CONSTRAINT rentals_bike_id_fkey FOREIGN KEY (bike_id) REFERENCES public.bikes(id)
 );
 
--- 9. payments (depends on clients, rentals, bookings)
+-- 9. payments
 CREATE TABLE IF NOT EXISTS public.payments (
     id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
     created_at timestamp with time zone DEFAULT now(),
@@ -177,7 +152,7 @@ CREATE TABLE IF NOT EXISTS public.payments (
     CONSTRAINT payments_booking_id_fkey FOREIGN KEY (booking_id) REFERENCES public.bookings(id)
 );
 
--- 10. rental_batteries (depends on rentals, batteries)
+-- 10. rental_batteries
 CREATE TABLE IF NOT EXISTS public.rental_batteries (
     id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
     rental_id bigint NOT NULL,
@@ -188,7 +163,7 @@ CREATE TABLE IF NOT EXISTS public.rental_batteries (
     CONSTRAINT rental_batteries_battery_id_fkey FOREIGN KEY (battery_id) REFERENCES public.batteries(id)
 );
 
--- 11. support_messages (depends on clients)
+-- 11. support_messages
 CREATE TABLE IF NOT EXISTS public.support_messages (
     id uuid NOT NULL DEFAULT gen_random_uuid(),
     created_at timestamp with time zone NOT NULL DEFAULT now(),
@@ -228,13 +203,11 @@ CREATE INDEX IF NOT EXISTS idx_bookings_status ON public.bookings(status);
 -- CREATE RPC FUNCTIONS
 -- ============================================
 
--- Drop existing functions first
 DROP FUNCTION IF EXISTS public.add_to_balance(uuid, numeric);
 DROP FUNCTION IF EXISTS public.assign_bike_to_rental(bigint, integer);
 DROP FUNCTION IF EXISTS public.get_anonymous_chats();
 DROP FUNCTION IF EXISTS public.get_client_chats();
 
--- Function: add_to_balance
 CREATE OR REPLACE FUNCTION public.add_to_balance(
     client_id_to_update uuid,
     amount_to_add numeric
@@ -254,7 +227,6 @@ BEGIN
 END;
 $$;
 
--- Function: assign_bike_to_rental
 CREATE OR REPLACE FUNCTION public.assign_bike_to_rental(
     p_rental_id bigint,
     p_bike_id integer
@@ -282,7 +254,6 @@ BEGIN
 END;
 $$;
 
--- Function: get_anonymous_chats
 CREATE OR REPLACE FUNCTION public.get_anonymous_chats()
 RETURNS TABLE (
     chat_id text,
@@ -305,7 +276,6 @@ BEGIN
 END;
 $$;
 
--- Function: get_client_chats
 CREATE OR REPLACE FUNCTION public.get_client_chats()
 RETURNS TABLE (
     client_id uuid,
@@ -354,7 +324,6 @@ GRANT ALL ON ALL TABLES IN SCHEMA public TO service_role;
 GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO service_role;
 GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA public TO service_role;
 
--- Refresh schema cache
 NOTIFY pgrst, 'reload schema';
 
-SELECT 'Full schema created successfully!' as status;
+SELECT 'Schema created successfully!' as status;
