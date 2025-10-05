@@ -1,7 +1,23 @@
 // ▼▼▼ ВСТАВЬТЕ ЭТОТ КОД В ПУСТОЙ ФАЙЛ admin_support.js ▼▼▼
 document.addEventListener('DOMContentLoaded', () => {
+    // Проверка наличия CONFIG
+    if (!window.CONFIG) {
+        console.error('❌ CONFIG не загружен! Проверьте, что config.js подключен.');
+        alert('Ошибка конфигурации. Обновите страницу или обратитесь к администратору.');
+        return;
+    }
+
     const SUPABASE_URL = window.CONFIG.SUPABASE_URL;
     const SUPABASE_ANON_KEY = window.CONFIG.SUPABASE_ANON_KEY;
+
+    if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+        console.error('❌ Supabase credentials не найдены в CONFIG!');
+        alert('Ошибка подключения к базе данных. Обратитесь к администратору.');
+        return;
+    }
+
+    console.log('✅ CONFIG загружен:', { SUPABASE_URL });
+
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
       realtime: {
         params: {
