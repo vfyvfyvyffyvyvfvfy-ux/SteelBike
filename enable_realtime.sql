@@ -1,21 +1,34 @@
 -- ============================================
--- ПОЛНАЯ НАСТРОЙКА ПРОЕКТА STEELBIKE
--- Один скрипт для создания всей базы данных
--- Включает: таблицы, индексы, функции, Storage, Realtime, RLS
+-- SteelBike Full Database Schema
+-- Creates all tables from scratch
 -- ============================================
 
--- ============================================
--- РАСШИРЕНИЯ
--- ============================================
-
+-- Enable required extensions
 CREATE EXTENSION IF NOT EXISTS postgis;
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- ============================================
--- СОЗДАНИЕ ТАБЛИЦ
+-- DROP EXISTING TABLES (CAREFUL!)
+-- Uncomment only if you want to recreate everything
+-- ============================================
+-- DROP TABLE IF EXISTS public.rental_batteries CASCADE;
+-- DROP TABLE IF EXISTS public.payments CASCADE;
+-- DROP TABLE IF EXISTS public.bookings CASCADE;
+-- DROP TABLE IF EXISTS public.rentals CASCADE;
+-- DROP TABLE IF EXISTS public.bikes CASCADE;
+-- DROP TABLE IF EXISTS public.batteries CASCADE;
+-- DROP TABLE IF EXISTS public.support_messages CASCADE;
+-- DROP TABLE IF EXISTS public.contract_templates CASCADE;
+-- DROP TABLE IF EXISTS public.tariffs CASCADE;
+-- DROP TABLE IF EXISTS public.clients CASCADE;
+-- DROP TABLE IF EXISTS public.app_settings CASCADE;
+-- NOTE: spatial_ref_sys is managed by PostGIS extension, do not drop or create manually
+
+-- ============================================
+-- CREATE TABLES IN CORRECT ORDER
 -- ============================================
 
--- 1. app_settings
+-- 1. app_settings (no dependencies)
 CREATE TABLE IF NOT EXISTS public.app_settings (
     key text NOT NULL,
     value jsonb,
@@ -23,7 +36,10 @@ CREATE TABLE IF NOT EXISTS public.app_settings (
     CONSTRAINT app_settings_pkey PRIMARY KEY (key)
 );
 
--- 2. clients
+-- NOTE: spatial_ref_sys table is automatically created by PostGIS extension
+-- Do not attempt to create it manually as it will cause "relation already exists" error
+
+-- 2. clients (no dependencies)
 CREATE TABLE IF NOT EXISTS public.clients (
     id uuid NOT NULL DEFAULT gen_random_uuid(),
     created_at timestamp with time zone DEFAULT now(),
@@ -48,7 +64,7 @@ CREATE TABLE IF NOT EXISTS public.clients (
     CONSTRAINT clients_pkey PRIMARY KEY (id)
 );
 
--- 3. tariffs
+-- 3. tariffs (no dependencies)
 CREATE TABLE IF NOT EXISTS public.tariffs (
     id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
     created_at timestamp with time zone DEFAULT now(),
@@ -63,7 +79,7 @@ CREATE TABLE IF NOT EXISTS public.tariffs (
     CONSTRAINT tariffs_pkey PRIMARY KEY (id)
 );
 
--- 4. contract_templates
+-- 4. contract_templates (no dependencies)
 CREATE TABLE IF NOT EXISTS public.contract_templates (
     id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
     created_at timestamp with time zone DEFAULT now(),
@@ -73,7 +89,7 @@ CREATE TABLE IF NOT EXISTS public.contract_templates (
     CONSTRAINT contract_templates_pkey PRIMARY KEY (id)
 );
 
--- 5. batteries
+-- 5. batteries (no dependencies)
 CREATE TABLE IF NOT EXISTS public.batteries (
     id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
     serial_number text NOT NULL UNIQUE,
@@ -84,7 +100,8 @@ CREATE TABLE IF NOT EXISTS public.batteries (
     CONSTRAINT batteries_pkey PRIMARY KEY (id)
 );
 
--- 6. bikes
+-- 6. bikes (depends on clients, tariffs)
+-- Create sequence first
 CREATE SEQUENCE IF NOT EXISTS bikes_id_seq;
 
 CREATE TABLE IF NOT EXISTS public.bikes (
@@ -110,7 +127,7 @@ CREATE TABLE IF NOT EXISTS public.bikes (
     CONSTRAINT bikes_tariff_id_fkey FOREIGN KEY (tariff_id) REFERENCES public.tariffs(id)
 );
 
--- 7. bookings
+-- 7. bookings (depends on clients)
 CREATE TABLE IF NOT EXISTS public.bookings (
     id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
     user_id uuid NOT NULL,
@@ -122,7 +139,7 @@ CREATE TABLE IF NOT EXISTS public.bookings (
     CONSTRAINT bookings_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.clients(id)
 );
 
--- 8. rentals
+-- 8. rentals (depends on clients, tariffs, bikes)
 CREATE TABLE IF NOT EXISTS public.rentals (
     id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
     created_at timestamp with time zone DEFAULT now(),
@@ -140,7 +157,7 @@ CREATE TABLE IF NOT EXISTS public.rentals (
     CONSTRAINT rentals_bike_id_fkey FOREIGN KEY (bike_id) REFERENCES public.bikes(id)
 );
 
--- 9. payments
+-- 9. payments (depends on clients, rentals, bookings)
 CREATE TABLE IF NOT EXISTS public.payments (
     id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
     created_at timestamp with time zone DEFAULT now(),
@@ -160,7 +177,7 @@ CREATE TABLE IF NOT EXISTS public.payments (
     CONSTRAINT payments_booking_id_fkey FOREIGN KEY (booking_id) REFERENCES public.bookings(id)
 );
 
--- 10. rental_batteries
+-- 10. rental_batteries (depends on rentals, batteries)
 CREATE TABLE IF NOT EXISTS public.rental_batteries (
     id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
     rental_id bigint NOT NULL,
@@ -171,7 +188,7 @@ CREATE TABLE IF NOT EXISTS public.rental_batteries (
     CONSTRAINT rental_batteries_battery_id_fkey FOREIGN KEY (battery_id) REFERENCES public.batteries(id)
 );
 
--- 11. support_messages
+-- 11. support_messages (depends on clients)
 CREATE TABLE IF NOT EXISTS public.support_messages (
     id uuid NOT NULL DEFAULT gen_random_uuid(),
     created_at timestamp with time zone NOT NULL DEFAULT now(),
@@ -187,7 +204,7 @@ CREATE TABLE IF NOT EXISTS public.support_messages (
 );
 
 -- ============================================
--- ИНДЕКСЫ
+-- CREATE INDEXES
 -- ============================================
 
 CREATE INDEX IF NOT EXISTS idx_clients_auth_token ON public.clients(auth_token);
@@ -208,14 +225,16 @@ CREATE INDEX IF NOT EXISTS idx_bookings_user_id ON public.bookings(user_id);
 CREATE INDEX IF NOT EXISTS idx_bookings_status ON public.bookings(status);
 
 -- ============================================
--- RPC ФУНКЦИИ
+-- CREATE RPC FUNCTIONS
 -- ============================================
 
+-- Drop existing functions first
 DROP FUNCTION IF EXISTS public.add_to_balance(uuid, numeric);
 DROP FUNCTION IF EXISTS public.assign_bike_to_rental(bigint, integer);
 DROP FUNCTION IF EXISTS public.get_anonymous_chats();
 DROP FUNCTION IF EXISTS public.get_client_chats();
 
+-- Function: add_to_balance
 CREATE OR REPLACE FUNCTION public.add_to_balance(
     client_id_to_update uuid,
     amount_to_add numeric
@@ -228,12 +247,14 @@ BEGIN
     UPDATE public.clients
     SET balance_rub = balance_rub + amount_to_add
     WHERE id = client_id_to_update;
+    
     IF NOT FOUND THEN
         RAISE EXCEPTION 'Client with id % not found', client_id_to_update;
     END IF;
 END;
 $$;
 
+-- Function: assign_bike_to_rental
 CREATE OR REPLACE FUNCTION public.assign_bike_to_rental(
     p_rental_id bigint,
     p_bike_id integer
@@ -243,21 +264,40 @@ LANGUAGE plpgsql
 SECURITY DEFINER
 AS $$
 BEGIN
-    UPDATE public.rentals SET bike_id = p_bike_id WHERE id = p_rental_id;
-    IF NOT FOUND THEN RAISE EXCEPTION 'Rental with id % not found', p_rental_id; END IF;
-    UPDATE public.bikes SET status = 'rented' WHERE id = p_bike_id;
-    IF NOT FOUND THEN RAISE EXCEPTION 'Bike with id % not found', p_bike_id; END IF;
+    UPDATE public.rentals
+    SET bike_id = p_bike_id
+    WHERE id = p_rental_id;
+    
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'Rental with id % not found', p_rental_id;
+    END IF;
+    
+    UPDATE public.bikes
+    SET status = 'rented'
+    WHERE id = p_bike_id;
+    
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'Bike with id % not found', p_bike_id;
+    END IF;
 END;
 $$;
 
+-- Function: get_anonymous_chats
 CREATE OR REPLACE FUNCTION public.get_anonymous_chats()
-RETURNS TABLE (chat_id text, last_message_time timestamp with time zone, unread_count bigint)
-LANGUAGE plpgsql SECURITY DEFINER
+RETURNS TABLE (
+    chat_id text,
+    last_message_time timestamp with time zone,
+    unread_count bigint
+)
+LANGUAGE plpgsql
+SECURITY DEFINER
 AS $$
 BEGIN
     RETURN QUERY
-    SELECT sm.anonymous_chat_id as chat_id, MAX(sm.created_at) as last_message_time,
-           COUNT(*) FILTER (WHERE sm.is_read = false AND sm.sender = 'client') as unread_count
+    SELECT 
+        sm.anonymous_chat_id as chat_id,
+        MAX(sm.created_at) as last_message_time,
+        COUNT(*) FILTER (WHERE sm.is_read = false AND sm.sender = 'client') as unread_count
     FROM public.support_messages sm
     WHERE sm.anonymous_chat_id IS NOT NULL
     GROUP BY sm.anonymous_chat_id
@@ -265,14 +305,26 @@ BEGIN
 END;
 $$;
 
+-- Function: get_client_chats
 CREATE OR REPLACE FUNCTION public.get_client_chats()
-RETURNS TABLE (client_id uuid, client_name text, client_phone text, last_message_time timestamp with time zone, unread_count bigint)
-LANGUAGE plpgsql SECURITY DEFINER
+RETURNS TABLE (
+    client_id uuid,
+    client_name text,
+    client_phone text,
+    last_message_time timestamp with time zone,
+    unread_count bigint
+)
+LANGUAGE plpgsql
+SECURITY DEFINER
 AS $$
 BEGIN
     RETURN QUERY
-    SELECT c.id, c.name, c.phone, MAX(sm.created_at) as last_message_time,
-           COUNT(*) FILTER (WHERE sm.is_read = false AND sm.sender = 'client') as unread_count
+    SELECT 
+        c.id as client_id,
+        c.name as client_name,
+        c.phone as client_phone,
+        MAX(sm.created_at) as last_message_time,
+        COUNT(*) FILTER (WHERE sm.is_read = false AND sm.sender = 'client') as unread_count
     FROM public.clients c
     INNER JOIN public.support_messages sm ON sm.client_id = c.id
     WHERE sm.client_id IS NOT NULL
@@ -282,71 +334,7 @@ END;
 $$;
 
 -- ============================================
--- ОТКЛЮЧЕНИЕ RLS ДЛЯ ВСЕХ ТАБЛИЦ
--- ============================================
-
-ALTER TABLE public.app_settings DISABLE ROW LEVEL SECURITY;
-ALTER TABLE public.clients DISABLE ROW LEVEL SECURITY;
-ALTER TABLE public.tariffs DISABLE ROW LEVEL SECURITY;
-ALTER TABLE public.contract_templates DISABLE ROW LEVEL SECURITY;
-ALTER TABLE public.batteries DISABLE ROW LEVEL SECURITY;
-ALTER TABLE public.bikes DISABLE ROW LEVEL SECURITY;
-ALTER TABLE public.bookings DISABLE ROW LEVEL SECURITY;
-ALTER TABLE public.rentals DISABLE ROW LEVEL SECURITY;
-ALTER TABLE public.payments DISABLE ROW LEVEL SECURITY;
-ALTER TABLE public.rental_batteries DISABLE ROW LEVEL SECURITY;
-ALTER TABLE public.support_messages DISABLE ROW LEVEL SECURITY;
-
--- ============================================
--- НАСТРОЙКА STORAGE
--- ============================================
-
--- Создаем bucket'ы
-INSERT INTO storage.buckets (id, name, public)
-VALUES 
-    ('passports', 'passports', true),
-    ('contracts', 'contracts', true),
-    ('support_attachments', 'support_attachments', true),
-    ('support_files', 'support_files', true)
-ON CONFLICT (id) DO UPDATE SET public = true;
-
--- Удаляем старые политики Storage
-DROP POLICY IF EXISTS "public_read_all" ON storage.objects;
-DROP POLICY IF EXISTS "public_insert_all" ON storage.objects;
-DROP POLICY IF EXISTS "public_update_all" ON storage.objects;
-DROP POLICY IF EXISTS "public_delete_all" ON storage.objects;
-
--- Создаем открытые политики Storage
-CREATE POLICY "public_read_all" ON storage.objects FOR SELECT TO public, anon, authenticated USING (true);
-CREATE POLICY "public_insert_all" ON storage.objects FOR INSERT TO public, anon, authenticated WITH CHECK (true);
-CREATE POLICY "public_update_all" ON storage.objects FOR UPDATE TO public, anon, authenticated USING (true) WITH CHECK (true);
-CREATE POLICY "public_delete_all" ON storage.objects FOR DELETE TO public, anon, authenticated USING (true);
-
--- ============================================
--- НАСТРОЙКА REALTIME
--- ============================================
-
-DO $$ 
-BEGIN
-    IF NOT EXISTS (SELECT 1 FROM pg_publication_tables WHERE pubname = 'supabase_realtime' AND tablename = 'support_messages') THEN
-        ALTER PUBLICATION supabase_realtime ADD TABLE support_messages;
-    END IF;
-    IF NOT EXISTS (SELECT 1 FROM pg_publication_tables WHERE pubname = 'supabase_realtime' AND tablename = 'clients') THEN
-        ALTER PUBLICATION supabase_realtime ADD TABLE clients;
-    END IF;
-    IF NOT EXISTS (SELECT 1 FROM pg_publication_tables WHERE pubname = 'supabase_realtime' AND tablename = 'rentals') THEN
-        ALTER PUBLICATION supabase_realtime ADD TABLE rentals;
-    END IF;
-    IF NOT EXISTS (SELECT 1 FROM pg_publication_tables WHERE pubname = 'supabase_realtime' AND tablename = 'bikes') THEN
-        ALTER PUBLICATION supabase_realtime ADD TABLE bikes;
-    END IF;
-    IF NOT EXISTS (SELECT 1 FROM pg_publication_tables WHERE pubname = 'supabase_realtime' AND tablename = 'payments') THEN
-        ALTER PUBLICATION supabase_realtime ADD TABLE payments;
-    END IF;
-END $$;
-
--- ============================================
--- ДЕФОЛТНЫЕ ДАННЫЕ
+-- INSERT DEFAULT DATA
 -- ============================================
 
 INSERT INTO public.app_settings (key, value)
@@ -356,7 +344,7 @@ VALUES
 ON CONFLICT (key) DO NOTHING;
 
 -- ============================================
--- ПРАВА ДОСТУПА
+-- GRANT PERMISSIONS
 -- ============================================
 
 GRANT USAGE ON SCHEMA public TO authenticated, anon;
@@ -366,21 +354,223 @@ GRANT ALL ON ALL TABLES IN SCHEMA public TO service_role;
 GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO service_role;
 GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA public TO service_role;
 
--- Обновляем schema cache
+-- Refresh schema cache
 NOTIFY pgrst, 'reload schema';
+
+SELECT 'Full schema created successfully!' as status;
+
+
+
+
+
+
+
+
+-- ============================================
+-- БЫСТРОЕ ИСПРАВЛЕНИЕ REALTIME
+-- Запустите этот скрипт в Supabase SQL Editor
+-- ============================================
+
+-- 1. Включаем Realtime для support_messages
+ALTER PUBLICATION supabase_realtime ADD TABLE support_messages;
+
+-- 2. Убираем RLS (или делаем открытые политики)
+ALTER TABLE support_messages DISABLE ROW LEVEL SECURITY;
+
+-- ИЛИ если хотите оставить RLS, создайте открытые политики:
+-- DROP POLICY IF EXISTS "Enable read access for all users" ON support_messages;
+-- CREATE POLICY "Enable read access for all users" ON support_messages FOR SELECT USING (true);
+-- CREATE POLICY "Enable insert for all users" ON support_messages FOR INSERT WITH CHECK (true);
+-- CREATE POLICY "Enable update for all users" ON support_messages FOR UPDATE USING (true);
+
+-- 3. Проверка
+SELECT 
+    'support_messages' as table_name,
+    CASE 
+        WHEN 'support_messages' IN (
+            SELECT tablename 
+            FROM pg_publication_tables 
+            WHERE pubname = 'supabase_realtime'
+        ) THEN '✅ Realtime включен'
+        ELSE '❌ Realtime выключен'
+    END as status;
+
+
+
+
+
+
+
+
+
+    -- ============================================
+-- УНИВЕРСАЛЬНОЕ ИСПРАВЛЕНИЕ ВСЕХ ПРОБЛЕМ
+-- Запустите этот скрипт в Supabase SQL Editor
+-- ВАЖНО: Используйте RLS Editor в Dashboard для Storage!
+-- ============================================
+
+-- ============================================
+-- 1. ИСПРАВЛЕНИЕ STORAGE (через политики)
+-- ============================================
+
+-- Удаляем существующие политики для storage.objects
+DROP POLICY IF EXISTS "public_read_all" ON storage.objects;
+DROP POLICY IF EXISTS "public_insert_all" ON storage.objects;
+DROP POLICY IF EXISTS "public_update_all" ON storage.objects;
+DROP POLICY IF EXISTS "public_delete_all" ON storage.objects;
+
+-- Создаем открытые политики для storage.objects
+CREATE POLICY "public_read_all"
+ON storage.objects FOR SELECT
+TO public, anon, authenticated
+USING (true);
+
+CREATE POLICY "public_insert_all"
+ON storage.objects FOR INSERT
+TO public, anon, authenticated
+WITH CHECK (true);
+
+CREATE POLICY "public_update_all"
+ON storage.objects FOR UPDATE
+TO public, anon, authenticated
+USING (true)
+WITH CHECK (true);
+
+CREATE POLICY "public_delete_all"
+ON storage.objects FOR DELETE
+TO public, anon, authenticated
+USING (true);
+
+-- Делаем все bucket'ы публичными (это должно работать)
+UPDATE storage.buckets SET public = true WHERE public = false;
+
+-- Создаем bucket'ы если их нет
+INSERT INTO storage.buckets (id, name, public)
+VALUES 
+    ('passports', 'passports', true),
+    ('contracts', 'contracts', true),
+    ('support_attachments', 'support_attachments', true),
+    ('support_files', 'support_files', true)
+ON CONFLICT (id) DO UPDATE SET public = true;
+
+SELECT '✅ 1/3 Storage исправлен' as step_1;
+
+-- ============================================
+-- 2. ИСПРАВЛЕНИЕ REALTIME (чат поддержки)
+-- ============================================
+
+-- Включаем Realtime для таблиц (игнорируем если уже включено)
+DO $$ 
+BEGIN
+    -- support_messages
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_publication_tables 
+        WHERE pubname = 'supabase_realtime' 
+        AND tablename = 'support_messages'
+    ) THEN
+        ALTER PUBLICATION supabase_realtime ADD TABLE support_messages;
+    END IF;
+    
+    -- clients
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_publication_tables 
+        WHERE pubname = 'supabase_realtime' 
+        AND tablename = 'clients'
+    ) THEN
+        ALTER PUBLICATION supabase_realtime ADD TABLE clients;
+    END IF;
+    
+    -- rentals
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_publication_tables 
+        WHERE pubname = 'supabase_realtime' 
+        AND tablename = 'rentals'
+    ) THEN
+        ALTER PUBLICATION supabase_realtime ADD TABLE rentals;
+    END IF;
+    
+    -- bikes
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_publication_tables 
+        WHERE pubname = 'supabase_realtime' 
+        AND tablename = 'bikes'
+    ) THEN
+        ALTER PUBLICATION supabase_realtime ADD TABLE bikes;
+    END IF;
+    
+    -- payments
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_publication_tables 
+        WHERE pubname = 'supabase_realtime' 
+        AND tablename = 'payments'
+    ) THEN
+        ALTER PUBLICATION supabase_realtime ADD TABLE payments;
+    END IF;
+END $$;
+
+-- Отключаем RLS для support_messages
+ALTER TABLE support_messages DISABLE ROW LEVEL SECURITY;
+
+SELECT '✅ 2/3 Realtime включен' as step_2;
+
+-- ============================================
+-- 3. ОТКЛЮЧЕНИЕ RLS ДЛЯ ВСЕХ ТАБЛИЦ (для простоты)
+-- ============================================
+
+-- Отключаем RLS для всех основных таблиц
+ALTER TABLE clients DISABLE ROW LEVEL SECURITY;
+ALTER TABLE bikes DISABLE ROW LEVEL SECURITY;
+ALTER TABLE rentals DISABLE ROW LEVEL SECURITY;
+ALTER TABLE payments DISABLE ROW LEVEL SECURITY;
+ALTER TABLE bookings DISABLE ROW LEVEL SECURITY;
+ALTER TABLE tariffs DISABLE ROW LEVEL SECURITY;
+ALTER TABLE batteries DISABLE ROW LEVEL SECURITY;
+ALTER TABLE rental_batteries DISABLE ROW LEVEL SECURITY;
+ALTER TABLE contract_templates DISABLE ROW LEVEL SECURITY;
+ALTER TABLE app_settings DISABLE ROW LEVEL SECURITY;
+
+SELECT '✅ 3/3 RLS отключен для всех таблиц' as step_3;
 
 -- ============================================
 -- ПРОВЕРКА РЕЗУЛЬТАТОВ
 -- ============================================
 
-SELECT '✅ Таблицы созданы' as step_1;
-SELECT '✅ Индексы созданы' as step_2;
-SELECT '✅ Функции созданы' as step_3;
-SELECT '✅ RLS отключен' as step_4;
-SELECT '✅ Storage настроен' as step_5;
-SELECT '✅ Realtime включен' as step_6;
-
--- Финальная проверка
+-- Проверяем Storage
 SELECT 
-    '🎉 ПОЛНАЯ НАСТРОЙКА ЗАВЕРШЕНА!' as status,
-    'База данных готова к работе' as message;
+    '📦 Storage Buckets' as category,
+    id as bucket_name,
+    CASE WHEN public THEN '✅ Публичный' ELSE '❌ Приватный' END as status
+FROM storage.buckets
+ORDER BY id;
+
+-- Проверяем Realtime
+SELECT 
+    '📡 Realtime Tables' as category,
+    tablename as table_name,
+    '✅ Включен' as status
+FROM pg_publication_tables 
+WHERE pubname = 'supabase_realtime'
+ORDER BY tablename;
+
+-- Проверяем RLS
+SELECT 
+    '🔓 RLS Status' as category,
+    c.relname as table_name,
+    CASE 
+        WHEN c.relrowsecurity THEN '🔒 Включен'
+        ELSE '✅ Выключен'
+    END as rls_status
+FROM pg_class c
+JOIN pg_namespace n ON n.oid = c.relnamespace
+WHERE n.nspname = 'public'
+AND c.relkind = 'r'
+AND c.relname IN ('clients', 'bikes', 'rentals', 'payments', 'support_messages')
+ORDER BY c.relname;
+
+-- ============================================
+-- ГОТОВО!
+-- ============================================
+
+SELECT 
+    '🎉 ВСЕ ИСПРАВЛЕНО!' as status,
+    'Обновите страницу (Ctrl+R) и попробуйте снова' as next_step;

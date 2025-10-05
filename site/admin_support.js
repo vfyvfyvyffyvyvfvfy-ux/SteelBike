@@ -25,6 +25,9 @@ document.addEventListener('DOMContentLoaded', () => {
         },
       },
     });
+
+    // Отладка: проверяем статус Realtime
+    console.log('🔌 Supabase Realtime инициализирован');
     const chatListContainer = document.getElementById('chat-list-container');
     const chatWindowHeader = document.getElementById('chat-window-header');
     const chatHistoryContainer = document.getElementById('chat-history-container');
@@ -212,8 +215,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       })
       .subscribe((status) => {
+        console.log('📡 Realtime статус:', status);
         if (status === 'SUBSCRIBED') {
-          console.log('УСПЕШНО ПОДПИСАН НА ВСЕ ОБНОВЛЕНИЯ ЧАТА ПОДДЕРЖКИ!');
+          console.log('✅ УСПЕШНО ПОДПИСАН НА ВСЕ ОБНОВЛЕНИЯ ЧАТА ПОДДЕРЖКИ!');
+        } else if (status === 'CHANNEL_ERROR') {
+          console.error('❌ Ошибка подключения к Realtime каналу');
+        } else if (status === 'TIMED_OUT') {
+          console.error('⏱️ Таймаут подключения к Realtime');
+        } else if (status === 'CLOSED') {
+          console.warn('🔌 Realtime канал закрыт');
         }
       });
 

@@ -1,8 +1,22 @@
 const { createClient } = require('@supabase/supabase-js');
 const crypto = require('crypto');
 const axios = require('axios');
-// +++ ДОБАВЛЯЕМ НОВЫЙ ИМПОРТ +++
-const { GoogleGenerativeAI } = require('@google/generative-ai');
+const fs = require('fs');
+// +++ Google Cloud Vision API +++
+const vision = require('@google-cloud/vision');
+
+// Настройка Google Cloud credentials для Vercel
+if (process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON) {
+    try {
+        const credentials = JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON);
+        const credPath = '/tmp/google-credentials.json';
+        fs.writeFileSync(credPath, JSON.stringify(credentials));
+        process.env.GOOGLE_APPLICATION_CREDENTIALS = credPath;
+        console.log('✅ Google Cloud credentials loaded from environment variable');
+    } catch (err) {
+        console.error('❌ Failed to parse GOOGLE_APPLICATION_CREDENTIALS_JSON:', err);
+    }
+}
 
 function createSupabaseAdmin() {
     if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
@@ -66,73 +80,135 @@ async function triggerOCRProcessing(userId, fileIds) {
     }
 }
 
-// +++ НОВАЯ ФУНКЦИЯ ДЛЯ РАСПОЗНАВАНИЯ +++
-async function recognizeDocumentsWithGemini(supabaseAdmin, filePaths, countryCode) {
-    if (!process.env.GOOGLE_API_KEY) {
-        throw new Error('GOOGLE_API_KEY is not configured on the server.');
-    }
-    // Инициализируем Gemini
-    const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
+// +++ НОВАЯ ФУНКЦИЯ ДЛЯ РАСПОЗНАВАНИЯ С GOOGLE CLOUD VISION +++
+async function recognizeDocumentsWithVision(supabaseAdmin, filePaths, countryCode) {
+    // Инициализируем Vision API клиент
+    const client = new vision.ImageAnnotatorClient({
+        keyFilename: process.env.GOOGLE_APPLICATION_CREDENTIALS || './google-credentials.json'
+    });
 
-    // Скачиваем все файлы из Supabase
-    const imageParts = [];
+    const allText = [];
+    const recognizedData = {
+        full_name: null,
+        birth_date: null,
+        passport_number: null,
+        issue_date: null,
+        issuer: null,
+        registration_address: null,
+        raw_text: ''
+    };
+
+    // Скачиваем и распознаем каждый файл
     for (const path of filePaths) {
-        const { data, error } = await supabaseAdmin.storage.from('passports').download(path);
-        if (error) {
-            console.error(`Failed to download ${path} from Supabase:`, error);
-            continue; // Пропускаем битый файл
-        }
-        // Конвертируем файл в base64 для Gemini
-        const buffer = await data.arrayBuffer();
-        imageParts.push({
-            inlineData: {
-                data: Buffer.from(buffer).toString("base64"),
-                mimeType: 'image/jpeg'
+        try {
+            const { data, error } = await supabaseAdmin.storage.from('passports').download(path);
+            if (error) {
+                console.error(`Failed to download ${path} from Supabase:`, error);
+                continue;
             }
-        });
-    }
 
-    if (imageParts.length === 0) {
-        console.log("No images found to process.");
-        return {};
-    }
+            // Конвертируем в Buffer для Vision API
+            const buffer = Buffer.from(await data.arrayBuffer());
 
-    // Создаем промпт (такой же, как в Python)
-    const prompt = `
-        Analyze these document images from a user with '${countryCode}' citizenship.
-        Extract the following data into a single, minified JSON object with no comments or markdown:
-        {
-          "full_name": "...",
-          "last_name": "...",
-          "first_name": "...",
-          "middle_name": "...",
-          "birth_date": "DD.MM.YYYY",
-          "birth_place": "...",
-          "gender": "male/female",
-          "series": "...",
-          "number": "...",
-          "issue_date": "DD.MM.YYYY",
-          "expiry_date": "DD.MM.YYYY",
-          "issuing_authority": "...",
-          "registration_address": "..."
+            // Вызываем Vision API для распознавания текста
+            const [result] = await client.textDetection(buffer);
+            const detections = result.textAnnotations;
+
+            if (detections && detections.length > 0) {
+                // Первый элемент содержит весь текст
+                const fullText = detections[0].description;
+                allText.push(fullText);
+                console.log(`OCR result for ${path}:`, fullText.substring(0, 200));
+            }
+        } catch (err) {
+            console.error(`Error processing ${path}:`, err);
         }
-        Only include fields you can find. For middle_name, if it's part of the full name, extract it.
-    `;
-
-    // Отправляем запрос в Gemini
-    const result = await model.generateContent([prompt, ...imageParts]);
-    const response = await result.response;
-    const text = response.text();
-
-    // Чистим и парсим JSON
-    try {
-        const cleanedText = text.replace(/```json/g, '').replace(/```/g, '').trim();
-        return JSON.parse(cleanedText);
-    } catch (e) {
-        console.error("Failed to parse JSON from Gemini:", text);
-        return { error: "Failed to parse recognition result." };
     }
+
+    if (allText.length === 0) {
+        console.log("No text recognized from images.");
+        return recognizedData;
+    }
+
+    // Объединяем весь текст
+    const combinedText = allText.join('\n\n');
+    recognizedData.raw_text = combinedText;
+
+    // Парсим данные в зависимости от страны
+    if (countryCode === 'ru') {
+        // Российский паспорт
+        recognizedData.full_name = extractRussianName(combinedText);
+        recognizedData.birth_date = extractBirthDate(combinedText);
+        recognizedData.passport_number = extractPassportNumber(combinedText);
+        recognizedData.issue_date = extractIssueDate(combinedText);
+        recognizedData.issuer = extractIssuer(combinedText);
+        recognizedData.registration_address = extractAddress(combinedText);
+    } else {
+        // Для других стран - базовое извлечение
+        recognizedData.full_name = extractInternationalName(combinedText);
+        recognizedData.birth_date = extractBirthDate(combinedText);
+        recognizedData.passport_number = extractInternationalPassport(combinedText);
+    }
+
+    return recognizedData;
+}
+
+// Вспомогательные функции для парсинга
+function extractRussianName(text) {
+    // Ищем ФИО после слова "Фамилия" или в начале документа
+    const nameMatch = text.match(/(?:Фамилия|Surname)[:\s]*([А-ЯЁ]+)[:\s]*([А-ЯЁ]+)[:\s]*([А-ЯЁ]+)/i);
+    if (nameMatch) {
+        return `${nameMatch[1]} ${nameMatch[2]} ${nameMatch[3]}`;
+    }
+    // Альтернативный поиск
+    const altMatch = text.match(/([А-ЯЁ][а-яё]+)\s+([А-ЯЁ][а-яё]+)\s+([А-ЯЁ][а-яё]+)/);
+    return altMatch ? `${altMatch[1]} ${altMatch[2]} ${altMatch[3]}` : null;
+}
+
+function extractInternationalName(text) {
+    // Ищем имя в латинице
+    const nameMatch = text.match(/([A-Z][a-z]+)\s+([A-Z][a-z]+)(?:\s+([A-Z][a-z]+))?/);
+    return nameMatch ? nameMatch[0] : null;
+}
+
+function extractBirthDate(text) {
+    // Ищем дату рождения в формате ДД.ММ.ГГГГ или DD.MM.YYYY
+    const dateMatch = text.match(/(?:Дата рождения|Date of birth|Birth)[:\s]*(\d{2}[.\-\/]\d{2}[.\-\/]\d{4})/i);
+    if (dateMatch) return dateMatch[1];
+    
+    // Альтернативный поиск любой даты
+    const altMatch = text.match(/(\d{2}[.\-\/]\d{2}[.\-\/]\d{4})/);
+    return altMatch ? altMatch[1] : null;
+}
+
+function extractPassportNumber(text) {
+    // Российский паспорт: серия (4 цифры) номер (6 цифр)
+    const passportMatch = text.match(/(\d{4})\s*(\d{6})/);
+    return passportMatch ? `${passportMatch[1]} ${passportMatch[2]}` : null;
+}
+
+function extractInternationalPassport(text) {
+    // Международный паспорт: обычно буквы + цифры
+    const passportMatch = text.match(/([A-Z]{1,2}\d{7,9})/);
+    return passportMatch ? passportMatch[1] : null;
+}
+
+function extractIssueDate(text) {
+    // Дата выдачи
+    const dateMatch = text.match(/(?:Дата выдачи|Issue date)[:\s]*(\d{2}[.\-\/]\d{2}[.\-\/]\d{4})/i);
+    return dateMatch ? dateMatch[1] : null;
+}
+
+function extractIssuer(text) {
+    // Кем выдан
+    const issuerMatch = text.match(/(?:Кем выдан|Issued by)[:\s]*([^\n]{10,100})/i);
+    return issuerMatch ? issuerMatch[1].trim() : null;
+}
+
+function extractAddress(text) {
+    // Адрес регистрации
+    const addressMatch = text.match(/(?:Место жительства|Address|Адрес)[:\s]*([^\n]{10,200})/i);
+    return addressMatch ? addressMatch[1].trim() : null;
 }
 
 async function handler(req, res) {
@@ -202,19 +278,19 @@ async function handler(req, res) {
                 .filter(key => key.endsWith('_storage_path') && key !== 'video_note_storage_path')
                 .map(key => otherData[key]);
 
-            // 2. Вызываем нашу новую функцию
+            // 2. Вызываем Google Cloud Vision OCR
             let recognized_data = {};
             if (imagePathsToRecognize.length > 0) {
                 try {
-                    console.log(`Starting OCR for user ${telegram_user_id} with files:`, imagePathsToRecognize);
-                    recognized_data = await recognizeDocumentsWithGemini(
+                    console.log(`Starting Vision OCR for user ${telegram_user_id} with files:`, imagePathsToRecognize);
+                    recognized_data = await recognizeDocumentsWithVision(
                         supabaseAdmin,
                         imagePathsToRecognize,
                         otherData.citizenship || 'ru'
                     );
-                    console.log(`OCR result for user ${telegram_user_id}:`, recognized_data);
+                    console.log(`Vision OCR result for user ${telegram_user_id}:`, recognized_data);
                 } catch (e) {
-                    console.error("Gemini recognition failed:", e);
+                    console.error("Vision OCR failed:", e);
                     // Можно не прерывать регистрацию, а просто записать ошибку
                     recognized_data = { error: `Recognition failed: ${e.message}` };
                 }
