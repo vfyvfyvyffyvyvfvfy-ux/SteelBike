@@ -4,10 +4,25 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=1280">
-  <!-- Load static config as fallback first -->
-  <script src="./config.js"></script>
-  <!-- Then try to load dynamic config from API (will override if successful) -->
-  <script src="/api/config" onerror="console.log('Using static config.js as fallback')"></script>
+  <!-- Hardcoded CONFIG for reliability -->
+  <script>
+    window.CONFIG = {
+      SUPABASE_URL: 'https://qjrycnazrzetnciyqakm.supabase.co',
+      SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFqcnljbmF6cnpldG5jaXlxYWttIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk2ODcyMTYsImV4cCI6MjA3NTI2MzIxNn0.5SLKsfOjnSk-rehECpH1FPgCflCl1mi511VBTsDUXdU',
+      SUPABASE_SERVICE_ROLE_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFqcnljbmF6cnpldG5jaXlxYWttIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1OTY4NzIxNiwiZXhwIjoyMDc1MjYzMjE2fQ.2d9EIff6My4Muv5qzjtbeV3RXpwAlHTNh3icxF-cIU8',
+      GOOGLE_API_KEY: 'AIzaSyCds0FmujbSW88GPJwXeyhIjD8JOdyx5uU',
+      GEMINI_API_KEY: 'AIzaSyCds0FmujbSW88GPJwXeyhIjD8JOdyx5uU',
+      TELEGRAM_BOT_TOKEN: '8161502944:AAG7jnhO963k4w0RXAy808qL9IMVn3sASGQ',
+      YOOKASSA_SHOP_ID: '1165363',
+      YOOKASSA_SECRET_KEY: 'live_HOBpl4TqCwl-BBo2JP7hDCUpCIKJbY4pddBAHO4R-eU',
+      BOT_NOTIFY_URL: 'https://gemini-npxg.onrender.com/notify',
+      OCR_WORKER_URL: 'https://832a1274ed7e.ngrok-free.app',
+      ADMIN_SECRET_KEY: 'your_super_secret_admin_key',
+      INTERNAL_SECRET: 'MySuperSecretKeyForBikeAppOCR123!',
+      CONTRACTS_API_URL: 'https://gemini-npxg.onrender.com'
+    };
+    const CONFIG = window.CONFIG;
+  </script>
   <title>Админ‑панель | Bike App</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

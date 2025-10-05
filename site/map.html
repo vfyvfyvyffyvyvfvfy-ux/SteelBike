@@ -4,10 +4,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Load static config as fallback first -->
-    <script src="./config.js"></script>
-    <!-- Then try to load dynamic config from API (will override if successful) -->
-    <script src="/api/config" onerror="console.log('Using static config.js as fallback')"></script>
+    <!-- Hardcoded CONFIG for reliability -->
+    <script>
+      window.CONFIG = {
+        SUPABASE_URL: 'https://qjrycnazrzetnciyqakm.supabase.co',
+        SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFqcnljbmF6cnpldG5jaXlxYWttIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk2ODcyMTYsImV4cCI6MjA3NTI2MzIxNn0.5SLKsfOjnSk-rehECpH1FPgCflCl1mi511VBTsDUXdU',
+        GOOGLE_API_KEY: 'AIzaSyCds0FmujbSW88GPJwXeyhIjD8JOdyx5uU',
+        TELEGRAM_BOT_TOKEN: '8161502944:AAG7jnhO963k4w0RXAy808qL9IMVn3sASGQ',
+        CONTRACTS_API_URL: 'https://gemini-npxg.onrender.com'
+      };
+      const CONFIG = window.CONFIG;
+    </script>
     <title>Карта - Bike App</title>
     <!-- Шрифты Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
