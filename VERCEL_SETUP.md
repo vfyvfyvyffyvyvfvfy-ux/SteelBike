@@ -28,9 +28,9 @@ YOOKASSA_SHOP_ID=1165363
 YOOKASSA_SECRET_KEY=live_HOBpl4TqCwl-BBo2JP7hDCUpCIKJbY4pddBAHO4R-eU
 
 # Service URLs
-BOT_NOTIFY_URL=https://gemini-npxg.onrender.com/notify
+BOT_NOTIFY_URL=https://steelbikedogovor.onrender.com/notify
 OCR_WORKER_URL=https://832a1274ed7e.ngrok-free.app
-CONTRACTS_API_URL=https://gemini-npxg.onrender.com
+CONTRACTS_API_URL=https://steelbikedogovor.onrender.com
 
 # Security
 ADMIN_SECRET_KEY=your_super_secret_admin_key

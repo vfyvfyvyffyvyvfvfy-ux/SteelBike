@@ -11,7 +11,7 @@ const { GoogleGenerativeAI } = require('@google/generative-ai');
 // +++ ФУНКЦИЯ РАСПОЗНАВАНИЯ С GEMINI +++
 async function recognizeDocumentsWithGemini(supabaseAdmin, filePaths, countryCode) {
     console.log('🔍 Starting Gemini OCR...');
-    
+
     if (!process.env.GOOGLE_API_KEY) {
         throw new Error('GOOGLE_API_KEY not configured');
     }
@@ -43,22 +43,30 @@ async function recognizeDocumentsWithGemini(supabaseAdmin, filePaths, countryCod
     }
 
     // Промпт для Gemini
-    const prompt = `Analyze these passport/ID document images from ${countryCode} citizenship. Extract data as JSON:
+    const prompt = `Analyze these document images from a user with '${countryCode}' citizenship.
+Extract the following data into a single, minified JSON object with no comments or markdown:
 {
   "full_name": "...",
+  "last_name": "...",
+  "first_name": "...",
+  "middle_name": "...",
   "birth_date": "DD.MM.YYYY",
-  "passport_number": "...",
+  "birth_place": "...",
+  "gender": "male/female",
+  "series": "...",
+  "number": "...",
   "issue_date": "DD.MM.YYYY",
-  "issuer": "...",
+  "expiry_date": "DD.MM.YYYY",
+  "issuing_authority": "...",
   "registration_address": "..."
 }
-Only include fields you can find. Return valid JSON only, no markdown.`;
+Only include fields you can find. For middle_name, if it's part of the full name, extract it.`;
 
     // Вызываем Gemini
     const result = await model.generateContent([prompt, ...imageParts]);
     const response = await result.response;
     const text = response.text();
-    
+
     console.log('📄 Gemini response:', text);
 
     // Парсим JSON

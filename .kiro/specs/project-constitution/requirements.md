@@ -317,8 +317,8 @@ GEMINI_API_KEY=AIzaSyCds0FmujbSW88GPJwXeyhIjD8JOdyx5uU
 YOOKASSA_SHOP_ID=1165363
 YOOKASSA_SECRET_KEY=<secret_key>
 OCR_WORKER_URL=https://832a1274ed7e.ngrok-free.app
-BOT_NOTIFY_URL=https://gemini-npxg.onrender.com/notify
-CONTRACTS_API_URL=https://gemini-npxg.onrender.com
+BOT_NOTIFY_URL=https://steelbikedogovor.onrender.com/notify
+CONTRACTS_API_URL=https://steelbikedogovor.onrender.com
 ADMIN_SECRET_KEY=your_super_secret_admin_key
 INTERNAL_SECRET=MySuperSecretKeyForBikeAppOCR123!
 ```

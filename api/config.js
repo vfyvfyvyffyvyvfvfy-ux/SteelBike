@@ -14,11 +14,11 @@ export default function handler(req, res) {
     TELEGRAM_BOT_TOKEN: process.env.TELEGRAM_BOT_TOKEN || '8161502944:AAG7jnhO963k4w0RXAy808qL9IMVn3sASGQ',
     YOOKASSA_SHOP_ID: process.env.YOOKASSA_SHOP_ID || '1165363',
     YOOKASSA_SECRET_KEY: process.env.YOOKASSA_SECRET_KEY || 'live_HOBpl4TqCwl-BBo2JP7hDCUpCIKJbY4pddBAHO4R-eU',
-    BOT_NOTIFY_URL: process.env.BOT_NOTIFY_URL || 'https://gemini-npxg.onrender.com/notify',
+    BOT_NOTIFY_URL: process.env.BOT_NOTIFY_URL || 'https://steelbikedogovor.onrender.com/notify',
     OCR_WORKER_URL: process.env.OCR_WORKER_URL || 'https://832a1274ed7e.ngrok-free.app',
     ADMIN_SECRET_KEY: process.env.ADMIN_SECRET_KEY || 'your_super_secret_admin_key',
     INTERNAL_SECRET: process.env.INTERNAL_SECRET || 'MySuperSecretKeyForBikeAppOCR123!',
-    CONTRACTS_API_URL: process.env.CONTRACTS_API_URL || 'https://gemini-npxg.onrender.com'
+    CONTRACTS_API_URL: process.env.CONTRACTS_API_URL || 'https://steelbikedogovor.onrender.com'
   };
 
   // Return as JavaScript that sets window.CONFIG
