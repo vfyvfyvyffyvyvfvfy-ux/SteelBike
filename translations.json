@@ -1,0 +1,40 @@
+{
+  "ru": {
+    "welcome": "👋 Здравствуйте, *{name}!*\n\nДобро пожаловать в *SteelBike* — сервис аренды электровелосипедов.\n\n🚀 Нажмите кнопку ниже, чтобы открыть приложение и начать пользоваться сервисом.",
+    "open_app": "🚀 Открыть приложение",
+    "choose_language": "🌍 Выберите язык / Choose language:",
+    "language_ru": "🇷🇺 Русский",
+    "language_en": "🇬🇧 English",
+    "language_saved": "✅ Язык сохранен!",
+    "agreement_text": "📄 *Пожалуйста, ознакомьтесь с документами выше.*\n\nНажимая кнопку «Я согласен», вы подтверждаете, что полностью прочитали, поняли и принимаете условия Пользовательского соглашения и Приложения к нему. Это действие имеет юридическую силу и приравнивается к вашей собственноручной подписи.",
+    "agree_button": "✅ Я согласен и принимаю условия",
+    "thanks_start": "🚀 *Спасибо за подтверждение!* Давайте начнем регистрацию.\n\nЭто займет всего несколько шагов и обеспечит безопасность вашего аккаунта.\n\n📱 *Шаг 1:* Поделитесь вашим контактом для верификации.",
+    "share_contact": "📱 Поделиться номером",
+    "contact_received": "✅ *Отлично! Контакт получен.*\n\n📝 *Шаг 2:* Введите ваше полное имя (ФИО), как в паспорте.\n_Пример: Иванов Иван Иванович_",
+    "enter_birthdate": "👤 *Имя сохранено!*\n\n📅 *Шаг 3:* Введите вашу дату рождения (ДД.ММ.ГГГГ).\n_Пример: 15.05.1990_",
+    "choose_city": "📅 *Дата рождения сохранена!*\n_Ваш возраст: {age} лет_\n\n🏙️ *Шаг 4:* Выберите город работы.",
+    "city_moscow": "🏙️ Москва",
+    "city_spb": "🏙️ Санкт-Петербург",
+    "choose_country": "🏙️ *Город сохранен: {city}*\n\n🌍 *Шаг 5:* Выберите страну гражданства.",
+    "registration_complete": "✅ *Регистрация завершена!*\n\n🎊 Ваши данные приняты и отправлены на проверку.\n\n📱 Вы можете в любой момент зайти в приложение и посмотреть там статус проверки, дозаполнить данные (если потребуется), подключить карту, написать в поддержку или пригласить друга.\n\n_Спасибо за доверие к SteelBike!_"
+  },
+  "en": {
+    "welcome": "👋 Hello, *{name}!*\n\nWelcome to *SteelBike* — electric bike rental service.\n\n🚀 Click the button below to open the app and start using the service.",
+    "open_app": "🚀 Open App",
+    "choose_language": "🌍 Выберите язык / Choose language:",
+    "language_ru": "🇷🇺 Русский",
+    "language_en": "🇬🇧 English",
+    "language_saved": "✅ Language saved!",
+    "agreement_text": "📄 *Please review the documents above.*\n\nBy clicking the «I agree» button, you confirm that you have fully read, understood and accept the terms of the User Agreement and its Appendix. This action has legal force and is equivalent to your personal signature.",
+    "agree_button": "✅ I agree and accept the terms",
+    "thanks_start": "🚀 *Thank you for confirmation!* Let's start registration.\n\nThis will only take a few steps and will ensure the security of your account.\n\n📱 *Step 1:* Share your contact for verification.",
+    "share_contact": "📱 Share phone number",
+    "contact_received": "✅ *Great! Contact received.*\n\n📝 *Step 2:* Enter your full name as it appears in your passport.\n_Example: John Smith_",
+    "enter_birthdate": "👤 *Name saved!*\n\n📅 *Step 3:* Enter your date of birth (DD.MM.YYYY).\n_Example: 15.05.1990_",
+    "choose_city": "📅 *Date of birth saved!*\n_Your age: {age} years_\n\n🏙️ *Step 4:* Choose your work city.",
+    "city_moscow": "🏙️ Moscow",
+    "city_spb": "🏙️ Saint Petersburg",
+    "choose_country": "🏙️ *City saved: {city}*\n\n🌍 *Step 5:* Choose your citizenship country.",
+    "registration_complete": "✅ *Registration completed!*\n\n🎊 Your data has been accepted and sent for verification.\n\n📱 You can open the app at any time to check verification status, complete additional data (if required), connect a card, contact support or invite a friend.\n\n_Thank you for trusting SteelBike!_"
+  }
+}

@@ -67,6 +67,7 @@ dp = Dispatcher(storage=storage)
 
 # --- Состояния FSM для регистрации ---
 class Reg(StatesGroup):
+    language = State()       # ВЫБОР ЯЗЫКА
     agreement = State()      # НОВОЕ СОСТОЯНИЕ ДЛЯ СОГЛАСИЯ
     phone = State()
     name = State()
@@ -83,6 +84,22 @@ class Reg(StatesGroup):
     driver_license = State()
     emergency_phone = State()
     video_note = State()
+
+# --- Загрузка переводов ---
+import json
+try:
+    with open('translations.json', 'r', encoding='utf-8') as f:
+        TRANSLATIONS = json.load(f)
+except FileNotFoundError:
+    logger.error("translations.json not found!")
+    TRANSLATIONS = {'ru': {}, 'en': {}}
+
+def t(key: str, lang: str = 'en', **kwargs) -> str:
+    """Get translation by key"""
+    text = TRANSLATIONS.get(lang, {}).get(key, key)
+    if kwargs:
+        text = text.format(**kwargs)
+    return text
 
 async def upload_file_to_supabase(file_id: str, user_id: int, key: str) -> str:
     """Download file from Telegram and upload to Supabase Storage"""
@@ -196,35 +213,16 @@ async def start_handler(message: Message, state: FSMContext):
     args = message.text.split()[1] if len(message.text.split()) > 1 else None
 
     if args == 'register':
-        try:
-            # Создаем объекты файлов
-            agreement_file = FSInputFile('soglashenie.docx')
-            appendix_file = FSInputFile('prilozhenie.docx')
-
-            # Создаем клавиатуру с кнопкой согласия
-            agreement_kb = InlineKeyboardMarkup(inline_keyboard=[
-                [InlineKeyboardButton(text="✅ Я согласен и принимаю условия", callback_data="agree_and_continue")]
-            ])
-
-            # Отправляем документы и сообщение с кнопкой
-            await message.answer_document(agreement_file)
-            await message.answer_document(
-                appendix_file,
-                caption=(
-                    "📄 *Пожалуйста, ознакомьтесь с документами выше.*\n\n"
-                    "Нажимая кнопку «Я согласен», вы подтверждаете, что полностью "
-                    "прочитали, поняли и принимаете условия Пользовательского соглашения "
-                    "и Приложения к нему. Это действие имеет юридическую силу и "
-                    "приравнивается к вашей собственноручной подписи."
-                ),
-                parse_mode='Markdown',
-                reply_markup=agreement_kb
-            )
-            # Устанавливаем новое начальное состояние ожидания согласия
-            await state.set_state(Reg.agreement)
-        except FileNotFoundError:
-            logger.error("Файлы соглашений (soglashenie.docx, prilozhenie.docx) не найдены!")
-            await message.answer("❌ Не удалось загрузить документы для регистрации. Пожалуйста, обратитесь в поддержку.")
+        # Сначала выбор языка
+        language_kb = InlineKeyboardMarkup(inline_keyboard=[
+            [InlineKeyboardButton(text="🇷🇺 Русский", callback_data="lang_ru")],
+            [InlineKeyboardButton(text="🇬🇧 English", callback_data="lang_en")]
+        ])
+        await message.answer(
+            "🌍 Выберите язык / Choose language:",
+            reply_markup=language_kb
+        )
+        await state.set_state(Reg.language)
         return
 
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
@@ -238,17 +236,56 @@ async def start_handler(message: Message, state: FSMContext):
         reply_markup=keyboard
     )
 
+@dp.callback_query(Reg.language, F.data.startswith("lang_"))
+async def process_language(callback: CallbackQuery, state: FSMContext):
+    lang = callback.data.split('_')[1]  # 'ru' or 'en'
+    await state.update_data(language=lang)
+    
+    try:
+        # Создаем объекты файлов
+        agreement_file = FSInputFile('soglashenie.docx')
+        appendix_file = FSInputFile('prilozhenie.docx')
+
+        # Создаем клавиатуру с кнопкой согласия
+        agreement_kb = InlineKeyboardMarkup(inline_keyboard=[
+            [InlineKeyboardButton(text=t('agree_button', lang), callback_data="agree_and_continue")]
+        ])
+
+        # Отправляем документы и сообщение с кнопкой
+        await callback.message.answer_document(agreement_file)
+        await callback.message.answer_document(
+            appendix_file,
+            caption=t('agreement_text', lang),
+            parse_mode='Markdown',
+            reply_markup=agreement_kb
+        )
+        await callback.message.edit_text(t('language_saved', lang))
+        await state.set_state(Reg.agreement)
+    except FileNotFoundError:
+        logger.error("Файлы соглашений (soglashenie.docx, prilozhenie.docx) не найдены!")
+        await callback.message.answer("❌ Не удалось загрузить документы для регистрации. Пожалуйста, обратитесь в поддержку.")
+    await callback.answer()
+
 @dp.callback_query(Reg.agreement, F.data == "agree_and_continue")
 async def process_agreement(callback: CallbackQuery, state: FSMContext):
+    data = await state.get_data()
+    lang = data.get('language', 'en')
+    
     # Убираем кнопку, чтобы избежать повторных нажатий
     await callback.message.edit_reply_markup(reply_markup=None)
     # Начинаем стандартный процесс регистрации
+    
+    # Создаем клавиатуру с переводом
+    phone_kb = ReplyKeyboardMarkup(
+        keyboard=[[KeyboardButton(text=t('share_contact', lang), request_contact=True)]],
+        resize_keyboard=True,
+        one_time_keyboard=True
+    )
+    
     await callback.message.answer(
-        "🚀 *Спасибо за подтверждение!* Давайте начнем регистрацию.\n\n"
-        "Это займет всего несколько шагов и обеспечит безопасность вашего аккаунта.\n\n"
-        "📱 *Шаг 1:* Поделитесь вашим контактом для верификации.",
+        t('thanks_start', lang),
         parse_mode='Markdown',
-        reply_markup=get_phone_keyboard()
+        reply_markup=phone_kb
     )
     await state.set_state(Reg.phone)
     await callback.answer()

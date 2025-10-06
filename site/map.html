@@ -15,6 +15,7 @@
       };
       const CONFIG = window.CONFIG;
     </script>
+    <script src="translations.js"></script>
     <title>Карта - Bike App</title>
     <!-- Шрифты Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -51,7 +52,7 @@
             <!-- Выдвижная информационная карточка -->
             <div class="info-card" id="bike-info-card">
                 <div class="card-handle"></div>
-                <h3 id="card-address">Выберите точку на карте</h3>
+                <h3 id="card-address" data-i18n="select_point">Выберите точку на карте</h3>
                 <div class="card-stats">
                     <div class="stat-item">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
@@ -61,7 +62,7 @@
                             <path d="M15 18.5V11l-3-3-3.5 3H5.5"></path>
                             <path d="M12 8h3"></path>
                         </svg>
-                        Свободно: <strong id="card-bikes"></strong>
+                        <span data-i18n="available">Свободно</span>: <strong id="card-bikes"></strong>
                     </div>
                     <div class="stat-item">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
@@ -73,7 +74,7 @@
                         <span id="card-distance-time"></span>
                     </div>
                 </div>
-                <button class="btn btn-primary" id="route-button">Проложить маршрут</button>
+                <button class="btn btn-primary" id="route-button" data-i18n="build_route">Проложить маршрут</button>
             </div>
         </div>
 
