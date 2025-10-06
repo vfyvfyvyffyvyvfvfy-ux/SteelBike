@@ -939,6 +939,8 @@
                 isUpdatingCardView = true;
 
                 const userId = localStorage.getItem('userId');
+                const lang = localStorage.getItem('userLanguage') || 'ru';
+                
                 if (!userId || !cardViewContainer) {
                     isUpdatingCardView = false;
                     return;
@@ -969,19 +971,22 @@
                         // Если есть детали в extra, используем их
                         if (paymentMethod.type === 'bank_card' && paymentMethod.card) {
                             cardTitle = `**** **** **** ${paymentMethod.card.last4}`;
-                            cardSubtitle = `${paymentMethod.card.card_type || 'Карта'}`;
+                            cardSubtitle = `${paymentMethod.card.card_type || (lang === 'en' ? 'Card' : 'Карта')}`;
                         } else if (paymentMethod.type === 'sbp') {
-                            cardTitle = 'Система быстрых платежей';
-                            cardSubtitle = 'Привязан счёт СБП';
+                            cardTitle = lang === 'en' ? 'Fast Payment System' : 'Система быстрых платежей';
+                            cardSubtitle = lang === 'en' ? 'SBP account linked' : 'Привязан счёт СБП';
                         } else {
-                            cardTitle = paymentMethod.display_name || 'Сохраненный метод';
-                            cardSubtitle = 'Карта для автосписаний';
+                            cardTitle = paymentMethod.display_name || (lang === 'en' ? 'Saved method' : 'Сохраненный метод');
+                            cardSubtitle = lang === 'en' ? 'Card for auto-payments' : 'Карта для автосписаний';
                         }
                     } else {
                         // Если деталей нет, показываем общую информацию
-                        cardTitle = 'Способ оплаты привязан';
-                        cardSubtitle = 'Карта для автосписаний';
+                        cardTitle = lang === 'en' ? 'Payment method linked' : 'Способ оплаты привязан';
+                        cardSubtitle = lang === 'en' ? 'Card for auto-payments' : 'Карта для автосписаний';
                     }
+
+                    const linkedText = lang === 'en' ? 'Linked' : 'Привязана';
+                    const unbindText = lang === 'en' ? 'Unlink Card' : 'Отвязать карту';
 
                     cardViewContainer.innerHTML = `
                     <div id="card-display-view">
@@ -989,20 +994,25 @@
                             <div class="card-number">${cardTitle}</div>
                             <div class="card-details">
                                 <span>${cardSubtitle}</span>
-                                <span>Привязана</span>
+                                <span>${linkedText}</span>
                             </div>
                         </div>
-                        <button class="btn btn-secondary" id="unbind-card-btn" style="margin-top: 20px;">Отвязать карту</button>
+                        <button class="btn btn-secondary" id="unbind-card-btn" style="margin-top: 20px;">${unbindText}</button>
                     </div>`;
                     document.getElementById('unbind-card-btn').addEventListener('click', handleUnbindClick);
 
                 } catch (error) {
+                    const noCardText = lang === 'en' 
+                        ? "You don't have a linked card yet. You can link it now or it will be automatically saved after the first successful payment."
+                        : 'У вас еще нет привязанной карты. Вы можете привязать ее сейчас или она будет автоматически сохранена после первой успешной оплаты.';
+                    const linkCardText = lang === 'en' ? 'Link Card' : 'Привязать карту';
+                    
                     cardViewContainer.innerHTML = `
                     <div id="card-form-view">
-                        <p style="margin-bottom: 20px; color: var(--dark-green);" data-i18n="no_linked_card">
-                            У вас еще нет привязанной карты. Вы можете привязать ее сейчас или она будет автоматически сохранена после первой успешной оплаты.
+                        <p style="margin-bottom: 20px; color: var(--dark-green);">
+                            ${noCardText}
                         </p>
-                        <button class="btn btn-primary" id="add-card-btn" style="width: 100%;" data-i18n="link_card">Привязать карту</button>
+                        <button class="btn btn-primary" id="add-card-btn" style="width: 100%;">${linkCardText}</button>
                     </div>`;
                     document.getElementById('add-card-btn').addEventListener('click', handleAddCardClick);
                 } finally {
