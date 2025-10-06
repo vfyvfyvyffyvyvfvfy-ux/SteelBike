@@ -1,7 +1,7 @@
 function getProgressColor(progress) {
-    if (progress > 50) return '#26b999'; // green
+    if (progress > 50) return '#E02020'; // red
     if (progress > 20) return '#f5a623'; // orange
-    return '#e53e3e'; // red
+    return '#e53e3e'; // dark red
 }
 
 function formatBalance(balance) {

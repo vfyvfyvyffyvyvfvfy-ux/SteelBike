@@ -3,8 +3,8 @@
   "short_name": "BikeApp",
   "start_url": "/start.html",
   "display": "standalone",
-  "background_color": "#083830",
-  "theme_color": "#29e29a",
+  "background_color": "#8B0000",
+  "theme_color": "#E02020",
   "orientation": "portrait-primary",
   "icons": [
     {

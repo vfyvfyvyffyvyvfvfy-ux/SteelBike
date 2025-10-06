@@ -108,7 +108,7 @@
 body {
   background:
     radial-gradient(1200px 600px at 0% -10%, rgba(255, 255, 255, .35), rgba(255, 255, 255, 0)),
-    linear-gradient(135deg, var(--primary-green) 0%, #baf4de 35%, #e0f8f1 100%);
+    linear-gradient(135deg, var(--primary-green) 0%, #ffb3b3 35%, #ffe5e5 100%);
   min-height: 100vh;
   display: flex;
   align-items: center;
@@ -482,7 +482,7 @@ body {
 .dashboard-column {
   display: flex;
   flex-direction: column;
-  background: linear-gradient(135deg, var(--dark-green) 0%, #0a453c 100%);
+  background: linear-gradient(135deg, var(--dark-green) 0%, #5a0000 100%);
   border-radius: 16px;
   padding: 24px;
   box-shadow: var(--shadow-hover);
@@ -557,7 +557,7 @@ body {
 
 /* Revenue Card */
 .dashboard-revenue-card {
-  background: linear-gradient(135deg, var(--dark-green) 0%, #0a453c 100%);
+  background: linear-gradient(135deg, var(--dark-green) 0%, #5a0000 100%);
   border-radius: 16px;
   padding: 24px;
   color: white;
@@ -701,7 +701,7 @@ body {
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--dark-green), #0a453c);
+  background: linear-gradient(135deg, var(--dark-green), #5a0000);
   color: var(--white);
   box-shadow: var(--shadow-soft);
 }
@@ -1984,20 +1984,20 @@ select:focus::placeholder {
   display: flex;
   align-items: center;
   padding: 14px 16px;
-  border: 2px solid var(--card-bg, #f0fdf9);
+  border: 2px solid var(--card-bg, #fff5f5);
   border-radius: 12px;
   cursor: pointer;
   transition: all var(--transition-fast);
 }
 
 .tariff-option-item:hover {
-  border-color: var(--icon-green, #26b999);
+  border-color: var(--icon-green, #E02020);
   transform: translateY(-2px);
 }
 
 .tariff-option-item.selected {
-  border-color: var(--icon-green, #26b999);
-  background-color: var(--light-green-bg, #e0f8f1);
+  border-color: var(--icon-green, #E02020);
+  background-color: var(--light-green-bg, #ffe5e5);
   box-shadow: var(--shadow-soft);
 }
 
@@ -2013,18 +2013,18 @@ select:focus::placeholder {
 .tariff-option-item .option-duration {
   font-weight: 600;
   font-size: 1rem;
-  color: var(--dark-green, #083830);
+  color: var(--dark-green, #8B0000);
 }
 
 .tariff-option-item .option-price {
   font-weight: 700;
   font-size: 1.1rem;
-  color: var(--icon-green, #26b999);
+  color: var(--icon-green, #E02020);
   margin-left: auto;
 }
 
 .admin-table .btn.btn-primary {
-  background: linear-gradient(180deg, var(--dark-green), #0a453c);
+  background: linear-gradient(180deg, var(--dark-green), #5a0000);
   color: var(--white);
   border: none;
   /* Убираем белую рамку от общего стиля */

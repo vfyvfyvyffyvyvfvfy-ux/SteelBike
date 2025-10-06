@@ -1,10 +1,10 @@
 :root {
-  --primary-green: #29e29a;
-  --dark-green: #083830;
-  --icon-green: #26b999;
-  --light-green-bg: #e0f8f1;
-  --light-green-nav: #d4f7eb;
-  --card-bg: #f0fdf9;
+  --primary-green: #E02020;
+  --dark-green: #8B0000;
+  --icon-green: #E02020;
+  --light-green-bg: #ffe5e5;
+  --light-green-nav: #ffd4d4;
+  --card-bg: #fff5f5;
   --white: #ffffff;
   --progress-bar-bg: #eaf0f0;
   /* Reserve space for header when title is hidden */
