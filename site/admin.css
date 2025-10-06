@@ -1705,7 +1705,7 @@ select:focus::placeholder {
 /* Status color schemes */
 .status-success {
   background: #ffe5e5;
-  color: #8B0000;
+  color: #000000;
   border: 1px solid #ffb3b3;
 }
 
@@ -2013,7 +2013,7 @@ select:focus::placeholder {
 .tariff-option-item .option-duration {
   font-weight: 600;
   font-size: 1rem;
-  color: var(--dark-green, #8B0000);
+  color: var(--dark-green, #000000);
 }
 
 .tariff-option-item .option-price {
