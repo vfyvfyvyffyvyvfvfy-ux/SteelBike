@@ -658,19 +658,6 @@
             <button class="modal-close">&times;</button>
             <h2 style="text-align: center; margin-bottom: 20px;" data-i18n="choose_city">Выбор города</h2>
             <div class="city-selection-list">
-                <div class="city-option" data-city="Москва">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                        <circle cx="12" cy="10" r="3"></circle>
-                    </svg>
-                    <span data-i18n="moscow">Москва</span>
-                    <svg class="city-check hidden" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"
-                        stroke-linejoin="round">
-                        <polyline points="20 6 9 17 4 12"></polyline>
-                    </svg>
-                </div>
                 <div class="city-option" data-city="Санкт-Петербург">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1247,7 +1234,7 @@
                     (Приложение №1 к Договору проката)
                 </div>
                 <div style="display: flex; justify-content: space-between; margin-bottom: 20px; font-size: 0.9em;">
-                    <span>г. ${client?.city || 'Москва'}</span>
+                    <span>г. ${client?.city || 'Санкт-Петербург'}</span>
                     <span>${now.toLocaleDateString('ru-RU')}</span>
                 </div>
                 <h4 style="margin-top: 20px; margin-bottom: 10px;">1. Оборудование</h4>
@@ -1293,7 +1280,7 @@
                     (Приложение №2 к Договору проката)
                 </div>
                 <div style="display: flex; justify-content: space-between; margin-bottom: 20px; font-size: 0.9em;">
-                    <span>г. ${client?.city || 'Москва'}</span>
+                    <span>г. ${client?.city || 'Санкт-Петербург'}</span>
                     <span>${now.toLocaleDateString('ru-RU')}</span>
                 </div>
                 <h4 style="margin-top: 20px; margin-bottom: 10px;">1. Оборудование</h4>
@@ -1470,7 +1457,7 @@
             const cityModal = document.getElementById('payment-settings-modal');
 
             async function updatePaymentSettingsView() {
-                let savedCity = localStorage.getItem('selectedCity') || 'Москва';
+                let savedCity = localStorage.getItem('selectedCity') || 'Санкт-Петербург';
 
                 // Пытаемся получить город из БД
                 const userId = localStorage.getItem('userId');
@@ -1484,6 +1471,10 @@
 
                         if (!error && client && client.city) {
                             savedCity = client.city;
+                            localStorage.setItem('selectedCity', savedCity);
+                        } else {
+                            // Если города нет в БД, устанавливаем СПб по умолчанию
+                            savedCity = 'Санкт-Петербург';
                             localStorage.setItem('selectedCity', savedCity);
                         }
                     } catch (err) {

@@ -132,9 +132,6 @@ def get_phone_keyboard() -> ReplyKeyboardMarkup:
 def get_city_keyboard() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(inline_keyboard=[
         [
-            InlineKeyboardButton(text="🏙️ Москва", callback_data="city_msk")
-        ],
-        [
             InlineKeyboardButton(text="🏙️ Санкт-Петербург", callback_data="city_spb")
         ]
     ])
@@ -392,13 +389,8 @@ async def process_city_callback(callback: CallbackQuery, state: FSMContext):
     state_data = await state.get_data()
     lang = state_data.get('language', 'ru')
     
-    if data_cb == "city_msk":
-        city = t('city_moscow', lang)
-    elif data_cb == "city_spb":
-        city = t('city_spb', lang)
-    else:
-        await callback.answer("❌ Неверный выбор.")
-        return
+    # Только Санкт-Петербург
+    city = t('city_spb', lang)
 
     await state.update_data(city=city)
     await callback.message.edit_text(

@@ -134,7 +134,7 @@ async function processSucceededPayment(notification) {
             .eq('id', userId)
             .single();
         
-        const userCity = clientData?.city || 'Москва'; // По умолчанию Москва
+        const userCity = clientData?.city || 'Санкт-Петербург'; // По умолчанию Санкт-Петербург
         console.log(`[АРЕНДА] Город клиента: ${userCity}`);
         
         // Логика создания аренды с учетом города

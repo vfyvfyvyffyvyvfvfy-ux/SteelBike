@@ -162,7 +162,7 @@ function generateContractHTML(rentalData) {
             (Приложение №1 к Договору проката)
         </div>
         <div style="display: flex; justify-content: space-between; margin-bottom: 20px; font-size: 0.9em;">
-            <span>г. ${client?.city || 'Москва'}</span>
+            <span>г. ${client?.city || 'Санкт-Петербург'}</span>
             <span>${now.toLocaleDateString('ru-RU')}</span>
         </div>
         <h4 style="margin-top: 20px; margin-bottom: 10px;">1. Оборудование</h4>

@@ -100,7 +100,7 @@
 
     function initMap() {
         const investorBikes = JSON.parse(localStorage.getItem('investorBikes')) || [];
-        const mapCenter = investorBikes.length > 0 ? investorBikes[0].location : [55.7522, 37.6156]; // Центр - Москва или первый велик
+        const mapCenter = investorBikes.length > 0 ? investorBikes[0].location : [59.9311, 30.3609]; // Центр - Санкт-Петербург или первый велик
 
         let myMap = new ymaps.Map('map', { center: mapCenter, zoom: 12, controls: [] });
 

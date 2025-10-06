@@ -190,9 +190,9 @@
 
         // City data
         const cityData = {
-            'Москва': {
-                coords: [55.705072, 37.598672],
-                address: '5й Донской проезд д15с13',
+            'Санкт-Петербург': {
+                coords: [59.9311, 30.3609],
+                address: 'Санкт-Петербург',
                 zoom: 14
             },
             'Санкт-Петербург': {
@@ -204,7 +204,7 @@
 
         // Функция для нормализации названия города
         function normalizeCityName(city) {
-            if (!city) return 'Москва';
+            if (!city) return 'Санкт-Петербург';
             const cityLower = city.toLowerCase().trim();
 
             // Варианты для Санкт-Петербурга
@@ -213,19 +213,14 @@
                 return 'Санкт-Петербург';
             }
 
-            // Варианты для Москвы
-            if (cityLower.includes('москв') || cityLower === 'мск') {
-                return 'Москва';
-            }
-
-            // По умолчанию Москва
-            return 'Москва';
+            // По умолчанию Санкт-Петербург
+            return 'Санкт-Петербург';
         }
 
         // --- ЛОГИКА КАРТЫ (ЗАПУСКАЕТСЯ, КОГДА API ГОТОВ) ---
         function initMapWithData(userCity) {
             const normalizedCity = normalizeCityName(userCity);
-            const cityInfo = cityData[normalizedCity] || cityData['Москва'];
+            const cityInfo = cityData[normalizedCity] || cityData['Санкт-Петербург'];
             const bikePointData = {
                 coords: cityInfo.coords,
                 address: cityInfo.address,
@@ -347,7 +342,7 @@
             script.onload = () => {
                 ymaps.ready(async function () {
                     const userId = localStorage.getItem('userId');
-                    let userCity = 'Москва'; // default
+                    let userCity = 'Санкт-Петербург'; // default
 
                     if (userId && supabase) {
                         try {

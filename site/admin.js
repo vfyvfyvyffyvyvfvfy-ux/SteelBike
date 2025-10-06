@@ -199,7 +199,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         ymaps.ready(() => {
             myMap = new ymaps.Map("admin-map-container", {
-                center: [55.76, 37.64], // Москва
+                center: [59.9311, 30.3609], // Санкт-Петербург
                 zoom: 10,
                 controls: [] // Отключаем все стандартные элементы управления
             });
@@ -3612,7 +3612,7 @@ document.addEventListener('DOMContentLoaded', () => {
             bikeIdInput.value = '';
             bikeCodeInput.value = '';
             bikeModelInput.value = '';
-            bikeCitySelect.value = 'Москва';
+            bikeCitySelect.value = 'Санкт-Петербург';
             bikeTariffSelect.value = '';
             bikeFrameNumberInput.value = '';
             bikeRegistrationNumberInput.value = '';
@@ -3723,7 +3723,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 bikeIdInput.value = id;
                 bikeCodeInput.value = data.bike_code || '';
                 bikeModelInput.value = data.model_name || '';
-                bikeCitySelect.value = data.city || 'Москва';
+                bikeCitySelect.value = data.city || 'Санкт-Петербург';
                 bikeStatusSelect.value = data.status || 'available';
                 bikeFrameNumberInput.value = data.frame_number || '';
                 bikeRegistrationNumberInput.value = data.registration_number || '';
@@ -3928,7 +3928,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function pathGet(obj, path) { try { return path.split('.').reduce((o, k) => (o && o[k] != null) ? o[k] : '', obj); } catch { return '' } }
     function buildPreviewHTML() {
         const ctx = {
-            client: { full_name: 'Иванов Иван Иванович', first_name: 'Иван', last_name: 'Иванов', middle_name: 'Иванович', passport_series: '12 34', passport_number: '567890', issued_by: 'ОВД г. Москва', issued_at: '01.01.2020', birth_date: '02.02.1990', city: 'Москва', address: 'ул. Пушкина, д.1' },
+            client: { full_name: 'Иванов Иван Иванович', first_name: 'Иван', last_name: 'Иванов', middle_name: 'Иванович', passport_series: '12 34', passport_number: '567890', issued_by: 'ОВД г. Санкт-Петербург', issued_at: '01.01.2020', birth_date: '02.02.1990', city: 'Санкт-Петербург', address: 'ул. Пушкина, д.1' },
             tariff: { title: 'Золотой', duration_days: 7, price_rub: 3750 },
             rental: { id: 12345, starts_at: '2025-09-01', ends_at: '2025-09-08', bike_id: '00001' },
             now: { date: new Date().toLocaleDateString('ru-RU'), time: new Date().toLocaleTimeString('ru-RU') }
