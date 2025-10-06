@@ -121,6 +121,12 @@
                         localStorage.setItem('userId', data.user.id);
                         localStorage.setItem('userName', data.user.name);
                         localStorage.setItem('isRegistered', 'true');
+                        
+                        // Сохраняем язык пользователя если он есть в extra
+                        if (data.user.extra && data.user.extra.language) {
+                            localStorage.setItem('userLanguage', data.user.extra.language);
+                        }
+                        
                         // Reload to load the app
                         window.location.reload();
                     } else {

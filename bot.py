@@ -139,19 +139,19 @@ def get_city_keyboard() -> InlineKeyboardMarkup:
         ]
     ])
 
-def get_country_keyboard() -> InlineKeyboardMarkup:
+def get_country_keyboard(lang: str = 'ru') -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="🇷🇺 Российская Федерация", callback_data="country_ru")],
-        [InlineKeyboardButton(text="🇰🇿 Казахстан", callback_data="country_kz")],
-        [InlineKeyboardButton(text="🇰🇬 Кыргызстан", callback_data="country_kg")],
-        [InlineKeyboardButton(text="🇺🇿 Узбекистан", callback_data="country_uz")],
-        [InlineKeyboardButton(text="🇹🇯 Таджикистан", callback_data="country_tj")],
-        [InlineKeyboardButton(text="🌍 Другое", callback_data="country_other")]
+        [InlineKeyboardButton(text=t('country_russia', lang), callback_data="country_ru")],
+        [InlineKeyboardButton(text=t('country_kazakhstan', lang), callback_data="country_kz")],
+        [InlineKeyboardButton(text=t('country_kyrgyzstan', lang), callback_data="country_kg")],
+        [InlineKeyboardButton(text=t('country_uzbekistan', lang), callback_data="country_uz")],
+        [InlineKeyboardButton(text=t('country_tajikistan', lang), callback_data="country_tj")],
+        [InlineKeyboardButton(text=t('country_other', lang), callback_data="country_other")]
     ])
 
-def get_skip_keyboard(text: str = "Пропустить") -> InlineKeyboardMarkup:
+def get_skip_keyboard(lang: str = 'ru') -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text=text, callback_data="skip")]
+        [InlineKeyboardButton(text=t('skip', lang), callback_data="skip")]
     ])
 
 # --- ВОТ ЭТА НОВАЯ ФУНКЦИЯ ---
@@ -189,16 +189,20 @@ async def notify_admins_about_new_user(user_name: str, user_id: int):
 # Функция go_to_inn удалена, так как больше не нужна
 
 async def go_to_driver(msg: Union[Message, CallbackQuery], state: FSMContext):
-    text = "🚗 *Дополнительные документы (необязательно):* Отправьте фото водительского удостоверения."
-    keyboard = get_skip_keyboard("⏭️ Пропустить")
+    data = await state.get_data()
+    lang = data.get('language', 'ru')
+    text = t('driver_license', lang)
+    keyboard = get_skip_keyboard(lang)
     if isinstance(msg, CallbackQuery):
-        await msg.message.edit_text(text + "\n\n_Если нет, нажмите кнопку ниже._", parse_mode='Markdown', reply_markup=keyboard)
+        await msg.message.edit_text(text, parse_mode='Markdown', reply_markup=keyboard)
     else:
-        await msg.answer(text + "\n\n_Если нет, нажмите кнопку ниже._", parse_mode='Markdown', reply_markup=keyboard)
+        await msg.answer(text, parse_mode='Markdown', reply_markup=keyboard)
     await state.set_state(Reg.driver_license)
 
 async def go_to_emergency(msg: Union[Message, CallbackQuery], state: FSMContext):
-    text = "📞 *Телефон экстренного контакта:*\n_Пример: +7 (999) 123-45-67_"
+    data = await state.get_data()
+    lang = data.get('language', 'ru')
+    text = t('emergency_phone', lang)
     if isinstance(msg, CallbackQuery):
         await msg.message.edit_text(text, parse_mode='Markdown')
     else:
@@ -225,13 +229,15 @@ async def start_handler(message: Message, state: FSMContext):
         await state.set_state(Reg.language)
         return
 
+    # Пытаемся определить язык пользователя (по умолчанию русский)
+    user_lang = message.from_user.language_code if message.from_user.language_code in ['ru', 'en'] else 'ru'
+    app_url_with_lang = f"{WEB_APP_URL}?lang={user_lang}"
+    
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="🚀 Открыть приложение", web_app=WebAppInfo(url=WEB_APP_URL))]
+        [InlineKeyboardButton(text=t('open_app', user_lang), web_app=WebAppInfo(url=app_url_with_lang))]
     ])
     await message.answer(
-        f"👋 Здравствуйте, *{message.from_user.first_name or 'пользователь'}!*\n\n"
-        "Добро пожаловать в *SteelBike* — сервис аренды электровелосипедов.\n\n"
-        "🚀 Нажмите кнопку ниже, чтобы открыть приложение и начать пользоваться сервисом.",
+        t('welcome', user_lang, name=message.from_user.first_name or 'пользователь'),
         parse_mode='Markdown',
         reply_markup=keyboard
     )
@@ -297,15 +303,16 @@ async def agreement_fallback(message: Message):
 
 @dp.message(Reg.phone, F.contact)
 async def process_phone(message: types.Message, state: FSMContext):
+    data = await state.get_data()
+    lang = data.get('language', 'ru')
+    
     if message.contact.user_id != message.from_user.id:
         await message.answer("❌ Пожалуйста, поделитесь своим собственным контактом.", reply_markup=get_phone_keyboard())
         return
 
     await state.update_data(phone=message.contact.phone_number, telegram_user_id=message.from_user.id)
     await message.answer(
-        "✅ *Отлично! Контакт получен.*\n\n"
-        "📝 *Шаг 2:* Введите ваше полное имя (ФИО), как в паспорте.\n"
-        "_Пример: Иванов Иван Иванович_",
+        t('contact_received', lang),
         parse_mode='Markdown',
         reply_markup=ReplyKeyboardRemove()
     )
@@ -324,11 +331,12 @@ async def process_phone_invalid(message: Message):
 
 @dp.message(Reg.name)
 async def process_name(message: Message, state: FSMContext):
+    data = await state.get_data()
+    lang = data.get('language', 'ru')
+    
     await state.update_data(name=message.text.strip())
     await message.answer(
-        "👤 *Имя сохранено!*\n\n"
-        "📅 *Шаг 3:* Введите вашу дату рождения (ДД.ММ.ГГГГ).\n"
-        "_Пример: 15.05.1990_",
+        t('name_saved', lang),
         parse_mode='Markdown'
     )
     await state.set_state(Reg.birth_date)
@@ -339,11 +347,12 @@ async def process_birth_date(message: Message, state: FSMContext):
     from datetime import datetime
 
     date_str = message.text.strip()
+    data = await state.get_data()
+    lang = data.get('language', 'ru')
+    
     if not re.match(r'^\d{2}\.\d{2}\.\d{4}$', date_str):
         await message.answer(
-            "❌ *Неверный формат даты*\n\n"
-            "Введите дату в формате ДД.ММ.ГГГГ\n"
-            "_Пример: 15.05.1990_",
+            t('invalid_date_format', lang),
             parse_mode='Markdown'
         )
         return
@@ -355,69 +364,70 @@ async def process_birth_date(message: Message, state: FSMContext):
 
         if age < 18:
             await message.answer(
-                "❌ *Возраст должен быть 18+ лет*\n\n"
-                "Регистрация доступна только для совершеннолетних.\n"
-                "Попробуйте позже.",
+                t('age_restriction', lang),
                 parse_mode='Markdown'
             )
             await state.clear()
             return
 
+        data = await state.get_data()
+        lang = data.get('language', 'ru')
+        
         await state.update_data(birth_date=date_str)
         await message.answer(
-            f"📅 *Дата рождения сохранена!*\n"
-            f"_Ваш возраст: {age} лет_\n\n"
-            "🏙️ *Шаг 4:* Выберите город работы.",
+            t('birthdate_saved', lang, age=age),
             parse_mode='Markdown',
             reply_markup=get_city_keyboard()
         )
         await state.set_state(Reg.city)
     except ValueError:
         await message.answer(
-            "❌ *Неверная дата*\n\n"
-            "Проверьте корректность даты и попробуйте снова.\n"
-            "_Пример: 15.05.1990_",
+            t('invalid_date', lang),
             parse_mode='Markdown'
         )
 
 @dp.callback_query(Reg.city, F.data.startswith("city_"))
 async def process_city_callback(callback: CallbackQuery, state: FSMContext):
-    data = callback.data
-    if data == "city_msk":
-        city = "Москва"
-    elif data == "city_spb":
-        city = "Санкт-Петербург"
+    data_cb = callback.data
+    state_data = await state.get_data()
+    lang = state_data.get('language', 'ru')
+    
+    if data_cb == "city_msk":
+        city = t('city_moscow', lang)
+    elif data_cb == "city_spb":
+        city = t('city_spb', lang)
     else:
         await callback.answer("❌ Неверный выбор.")
         return
 
     await state.update_data(city=city)
     await callback.message.edit_text(
-        f"🏙️ *Город сохранен: {city}*\n\n"
-        "🌍 *Шаг 5:* Выберите страну гражданства.",
+        t('city_saved', lang, city=city),
         parse_mode='Markdown',
-        reply_markup=get_country_keyboard()
+        reply_markup=get_country_keyboard(lang)
     )
     await state.set_state(Reg.country)
     await callback.answer()
 
 @dp.callback_query(Reg.country, F.data.startswith("country_"))
 async def process_country_callback(callback: CallbackQuery, state: FSMContext):
+    state_data = await state.get_data()
+    lang = state_data.get('language', 'ru')
+    
     data = callback.data
     country_map = {
-        "country_ru": ("ru", "Российская Федерация"),
-        "country_kz": ("kz", "Казахстан"),
-        "country_kg": ("kg", "Кыргызстан"),
-        "country_uz": ("uz", "Узбекистан"),
-        "country_tj": ("tj", "Таджикистан"),
-        "country_other": ("other", "Другое")
+        "country_ru": "ru",
+        "country_kz": "kz",
+        "country_kg": "kg",
+        "country_uz": "uz",
+        "country_tj": "tj",
+        "country_other": "other"
     }
-    country_info = country_map.get(data)
-    if not country_info:
+    country_code = country_map.get(data)
+    if not country_code:
         await callback.answer("❌ Неверный выбор.")
         return
 
-    country_code, country_name = country_info
     await state.update_data(citizenship=country_code)
 
     if country_code == "other":
@@ -438,10 +448,15 @@ async def process_country_callback(callback: CallbackQuery, state: FSMContext):
         back_optional=back_optional
     )
 
+    # Получаем название страны на выбранном языке
+    country_key = f"country_{data.split('_')[1]}"
+    country_name = t(country_key, lang)
+    
+    # Выбираем правильный текст для паспорта
     if country_code == 'ru':
-        passport_text = "📸 *Шаг 6:* Отправьте фото главного разворота паспорта.\n_Убедитесь, что фото четкое и все данные читаемы._"
+        passport_text = t('passport_main_ru', lang)
     else:
-        passport_text = "📸 *Шаг 6:* Отправьте фото основного документа.\n_Загранпаспорт (главная страница) или ID-карта (лицевая сторона)._"
+        passport_text = t('passport_main_foreign', lang)
 
     await callback.message.edit_text(
         f"🌍 *Страна: {country_name}*\n\n"
@@ -481,15 +496,16 @@ async def process_other_country(message: Message, state: FSMContext):
 async def process_passport_main(message: Message, state: FSMContext):
     await state.update_data(passport_main_file_id=message.photo[-1].file_id)
     data = await state.get_data()
+    lang = data.get('language', 'ru')
     country = data.get('citizenship')
 
     if country == 'ru':
-        reg_text = "📸 *Шаг 7:* Отправьте фото страницы с регистрацией.\n_Если регистрации нет, отправьте любое фото паспорта._"
+        reg_text = t('passport_reg_ru', lang)
     else:
-        reg_text = "📸 *Шаг 7:* Если у вас ID-карта, отправьте фото оборотной стороны.\n_Если загранпаспорт, отправьте любое фото документа или пропустите._"
+        reg_text = t('passport_reg_foreign', lang)
 
     await message.answer(
-        f"📷 *Фото получено!*\n\n{reg_text}",
+        f"{t('photo_received', lang)}\n\n{reg_text}",
         parse_mode='Markdown'
     )
     await state.set_state(Reg.passport_reg)
@@ -500,14 +516,13 @@ async def process_passport_reg_photo(message: Message, state: FSMContext):
     
     # --- ИЗМЕНЕННАЯ ЛОГИКА: Вместо go_to_inn ---
     data = await state.get_data()
+    lang = data.get('language', 'ru')
     patent_required = data.get('patent_required', False)
     if patent_required:
         await message.answer(
-            "📝 *Фото получено!*\n\n"
-            "📄 *Шаг 8:* Отправьте фото патента на работу (лицевая сторона).\n"
-            "_Если нет, нажмите кнопку ниже._",
+            f"{t('photo_received', lang)}\n\n{t('patent_front', lang)}",
             parse_mode='Markdown',
-            reply_markup=get_skip_keyboard()
+            reply_markup=get_skip_keyboard(lang)
         )
         await state.set_state(Reg.patent_front)
     else:
@@ -635,12 +650,13 @@ async def fallback_driver(message: Message, state: FSMContext):
 
 @dp.message(Reg.emergency_phone)
 async def process_emergency_phone(message: Message, state: FSMContext):
+    data = await state.get_data()
+    lang = data.get('language', 'ru')
+    
     emergency_phone = message.text.strip()
     await state.update_data(emergency_phone=emergency_phone)
     await message.answer(
-        "📞 *Телефон сохранен!*\n\n"
-        "🎥 *Финальный шаг:* Запишите видео-кружок, где держите документ рядом с лицом.\n"
-        "_Это обеспечит безопасность вашего аккаунта._",
+        f"{t('phone_saved', lang)}\n\n{t('video_note', lang)}",
         parse_mode='Markdown'
     )
     await state.set_state(Reg.video_note)
@@ -651,10 +667,10 @@ async def process_video_note(message: Message, state: FSMContext):
     await state.update_data(video_note_file_id=message.video_note.file_id)
     user_data = await state.get_data()
     user_id = user_data.get('telegram_user_id')
+    lang = user_data.get('language', 'ru')
 
     await message.answer(
-        "🎉 *Видео получено!*\n\n"
-        "🤖 Обрабатываю ваши документы... Это может занять до минуты.",
+        t('video_received', lang),
         parse_mode='Markdown'
     )
 
@@ -735,15 +751,13 @@ async def process_video_note(message: Message, state: FSMContext):
                     # --- КОНЕЦ ДОБАВЛЕНИЯ ---
 
                     await message.answer(
-                        "✅ *Регистрация завершена!*\n\n"
-                        "🎊 Ваши данные приняты и отправлены на проверку.\n\n"
-                        "📱 Вы можете в любой момент зайти в приложение и посмотреть там статус проверки, дозаполнить данные (если потребуется), подключить карту, написать в поддержку или пригласить друга.\n\n"
-                        "_Спасибо за доверие к SteelBike!_",
+                        t('registration_complete', lang),
                         parse_mode='Markdown'
                     )
-                    # Send video with app button
+                    # Send video with app button - передаем язык через URL
+                    app_url_with_lang = f"{WEB_APP_URL}?lang={lang}"
                     keyboard = InlineKeyboardMarkup(inline_keyboard=[
-                        [InlineKeyboardButton(text="🚀 Открыть приложение", web_app=WebAppInfo(url=WEB_APP_URL))]
+                        [InlineKeyboardButton(text=t('open_app', lang), web_app=WebAppInfo(url=app_url_with_lang))]
                     ])
                     # Убедитесь, что файл IMG_7164.MP4 лежит в той же папке
                     try:

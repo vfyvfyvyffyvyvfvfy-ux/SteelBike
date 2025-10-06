@@ -201,5 +201,11 @@ function updatePageLanguage() {
 
 // Initialize language on page load
 document.addEventListener('DOMContentLoaded', () => {
+  // Проверяем язык из URL (если пришли из бота)
+  const urlParams = new URLSearchParams(window.location.search);
+  const langFromUrl = urlParams.get('lang');
+  if (langFromUrl && (langFromUrl === 'ru' || langFromUrl === 'en')) {
+    setUserLanguage(langFromUrl);
+  }
   updatePageLanguage();
 });
