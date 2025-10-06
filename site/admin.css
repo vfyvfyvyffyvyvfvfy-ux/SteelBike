@@ -482,7 +482,7 @@ body {
 .dashboard-column {
   display: flex;
   flex-direction: column;
-  background: linear-gradient(135deg, var(--dark-green) 0%, #5a0000 100%);
+  background: linear-gradient(135deg, #1a1a1a 0%, #000000 100%);
   border-radius: 16px;
   padding: 24px;
   box-shadow: var(--shadow-hover);
@@ -557,7 +557,7 @@ body {
 
 /* Revenue Card */
 .dashboard-revenue-card {
-  background: linear-gradient(135deg, var(--dark-green) 0%, #5a0000 100%);
+  background: linear-gradient(135deg, #1a1a1a 0%, #000000 100%);
   border-radius: 16px;
   padding: 24px;
   color: white;
@@ -701,7 +701,7 @@ body {
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--dark-green), #5a0000);
+  background: linear-gradient(135deg, #1a1a1a, #000000);
   color: var(--white);
   box-shadow: var(--shadow-soft);
 }
@@ -1705,7 +1705,7 @@ select:focus::placeholder {
 /* Status color schemes */
 .status-success {
   background: #ffe5e5;
-  color: #000000;
+  color: #1a1a1a;
   border: 1px solid #ffb3b3;
 }
 
@@ -2013,7 +2013,7 @@ select:focus::placeholder {
 .tariff-option-item .option-duration {
   font-weight: 600;
   font-size: 1rem;
-  color: var(--dark-green, #000000);
+  color: var(--dark-green, #1a1a1a);
 }
 
 .tariff-option-item .option-price {
@@ -2024,7 +2024,7 @@ select:focus::placeholder {
 }
 
 .admin-table .btn.btn-primary {
-  background: linear-gradient(180deg, var(--dark-green), #5a0000);
+  background: linear-gradient(180deg, #1a1a1a, #000000);
   color: var(--white);
   border: none;
   /* Убираем белую рамку от общего стиля */
