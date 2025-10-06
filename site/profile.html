@@ -808,6 +808,11 @@
                 if (modalId === 'support-modal') initializeSupportChat();
 
                 modal.classList.remove('hidden');
+                
+                // Обновляем переводы после открытия модалки
+                if (typeof updatePageLanguage === 'function') {
+                    setTimeout(() => updatePageLanguage(), 100);
+                }
             };
 
             const closeModal = (modal) => {
