@@ -16,6 +16,12 @@ const translations = {
     open_bot: 'Открыть бота',
     authorization: 'Авторизация...',
     auth_error: 'Ошибка авторизации',
+    find_and_rent: 'Найти и арендовать электровелосипед рядом.',
+    available_bikes: 'Свободных',
+    tariffs: 'Тарифы',
+    enter_id: 'Ввести ID',
+    book: 'Бронь',
+    days: 'дней',
     
     // Map page
     available_bikes: 'Доступные велосипеды',
@@ -94,6 +100,12 @@ const translations = {
     open_bot: 'Open Bot',
     authorization: 'Authorization...',
     auth_error: 'Authorization Error',
+    find_and_rent: 'Find and rent an electric bike nearby.',
+    available_bikes: 'Available',
+    tariffs: 'Tariffs',
+    enter_id: 'Enter ID',
+    book: 'Book',
+    days: 'days',
     
     // Map page
     available_bikes: 'Available bikes',

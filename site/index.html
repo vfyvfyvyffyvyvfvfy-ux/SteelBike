@@ -121,12 +121,12 @@
                         localStorage.setItem('userId', data.user.id);
                         localStorage.setItem('userName', data.user.name);
                         localStorage.setItem('isRegistered', 'true');
-                        
+
                         // Сохраняем язык пользователя если он есть в extra
                         if (data.user.extra && data.user.extra.language) {
                             localStorage.setItem('userLanguage', data.user.extra.language);
                         }
-                        
+
                         // Reload to load the app
                         window.location.reload();
                     } else {
@@ -966,6 +966,29 @@
             alert("Пожалуйста, пополните привязанную карту. Система автоматически попытается списать средства в ближайшие часы.");
         };
 
+        // Загружаем язык пользователя из базы данных
+        async function loadUserLanguage() {
+            const userId = localStorage.getItem('userId');
+            if (!userId) return;
+
+            try {
+                const { data: client, error } = await supabase
+                    .from('clients')
+                    .select('extra')
+                    .eq('id', userId)
+                    .single();
+
+                if (!error && client && client.extra && client.extra.language) {
+                    localStorage.setItem('userLanguage', client.extra.language);
+                    if (typeof updatePageLanguage === 'function') {
+                        updatePageLanguage();
+                    }
+                }
+            } catch (err) {
+                console.log('Could not load user language:', err);
+            }
+        }
+
         async function loadUserData() {
             const userId = localStorage.getItem('userId');
             const appHeader = document.querySelector('.app-header'); // Находим заголовок
@@ -978,7 +1001,7 @@
             try {
                 const { data: client, error } = await supabase
                     .from('clients')
-                    .select('verification_status, name, balance_rub, city') // <-- ИЗМЕНЕНИЕ 1
+                    .select('verification_status, name, balance_rub, city') // Убрали extra, он загружается в loadUserLanguage
                     .eq('id', userId)
                     .single();
 
@@ -2102,7 +2125,7 @@
             async function loadSteelBikeTariffs() {
                 let data;
                 let userCity = 'Москва'; // По умолчанию
-                
+
                 // Получаем город пользователя
                 const userId = localStorage.getItem('userId');
                 if (userId) {
@@ -2112,7 +2135,7 @@
                             .select('city')
                             .eq('id', userId)
                             .single();
-                        
+
                         if (!clientError && clientData?.city) {
                             userCity = clientData.city;
                         }
@@ -2120,7 +2143,7 @@
                         console.warn('Failed to fetch user city:', err);
                     }
                 }
-                
+
                 try {
                     const { data: supabaseData, error } = await supabase
                         .from('tariffs')
@@ -2141,7 +2164,7 @@
                         data = [];
                     }
                 }
-                
+
                 // Проверяем доступность великов для каждого тарифа в городе пользователя
                 const tariffAvailability = {};
                 try {
@@ -2150,7 +2173,7 @@
                         .select('tariff_id')
                         .eq('status', 'available')
                         .eq('city', userCity);
-                    
+
                     if (!bikesError && bikes) {
                         bikes.forEach(bike => {
                             tariffAvailability[bike.tariff_id] = true;
@@ -2168,12 +2191,12 @@
                     activeTariffs.forEach((t) => {
                         const key = t.slug || (t.title ? t.title.toLowerCase().replace(/\s+/g, '-') : '');
                         const isAvailable = tariffAvailability[t.id] === true;
-                        
+
                         const item = document.createElement('div');
                         item.className = 'bike-list-item tariff-option';
                         item.dataset.tariff = key;
                         item.dataset.tariffId = t.id;
-                        
+
                         // Если нет великов - показываем только название и предупреждение
                         if (!isAvailable) {
                             item.innerHTML = `
@@ -2192,7 +2215,7 @@
                                 showTariffDetail(key);
                             });
                         }
-                        
+
                         list.appendChild(item);
                     });
                 }
@@ -2573,8 +2596,10 @@
                 // --- КОНЕЦ НОВОГО КОДА ---
             });
 
-            // При загрузке страницы получаем данные пользователя
-            loadUserData();
+            // При загрузке страницы сначала загружаем язык, потом данные пользователя
+            loadUserLanguage().then(() => {
+                loadUserData();
+            });
             // После восстановления состояния проверяем, есть ли активная аренда
             if (typeof updateExtendButton === 'function') {
                 updateExtendButton();
