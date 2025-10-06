@@ -3,19 +3,71 @@ const crypto = require('crypto');
 const axios = require('axios');
 const fs = require('fs');
 const fetch = require('node-fetch');
-// +++ Google Cloud Vision API +++
-const vision = require('@google-cloud/vision');
+// +++ Google Gemini API (бесплатный!) +++
+const { GoogleGenerativeAI } = require('@google/generative-ai');
 
-// Настройка Google Cloud credentials для Vercel
-if (process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON) {
+// Gemini не требует дополнительных credentials - только API ключ!
+
+// +++ ФУНКЦИЯ РАСПОЗНАВАНИЯ С GEMINI +++
+async function recognizeDocumentsWithGemini(supabaseAdmin, filePaths, countryCode) {
+    console.log('🔍 Starting Gemini OCR...');
+    
+    if (!process.env.GOOGLE_API_KEY) {
+        throw new Error('GOOGLE_API_KEY not configured');
+    }
+
+    // Инициализируем Gemini
+    const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
+
+    // Скачиваем все файлы
+    const imageParts = [];
+    for (const path of filePaths) {
+        const { data, error } = await supabaseAdmin.storage.from('passports').download(path);
+        if (error) {
+            console.error(`Failed to download ${path}:`, error);
+            continue;
+        }
+        const buffer = await data.arrayBuffer();
+        imageParts.push({
+            inlineData: {
+                data: Buffer.from(buffer).toString("base64"),
+                mimeType: 'image/jpeg'
+            }
+        });
+        console.log(`✅ Downloaded ${path}`);
+    }
+
+    if (imageParts.length === 0) {
+        return { error: 'No images to process' };
+    }
+
+    // Промпт для Gemini
+    const prompt = `Analyze these passport/ID document images from ${countryCode} citizenship. Extract data as JSON:
+{
+  "full_name": "...",
+  "birth_date": "DD.MM.YYYY",
+  "passport_number": "...",
+  "issue_date": "DD.MM.YYYY",
+  "issuer": "...",
+  "registration_address": "..."
+}
+Only include fields you can find. Return valid JSON only, no markdown.`;
+
+    // Вызываем Gemini
+    const result = await model.generateContent([prompt, ...imageParts]);
+    const response = await result.response;
+    const text = response.text();
+    
+    console.log('📄 Gemini response:', text);
+
+    // Парсим JSON
     try {
-        const credentials = JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON);
-        const credPath = '/tmp/google-credentials.json';
-        fs.writeFileSync(credPath, JSON.stringify(credentials));
-        process.env.GOOGLE_APPLICATION_CREDENTIALS = credPath;
-        console.log('✅ Google Cloud credentials loaded from environment variable');
-    } catch (err) {
-        console.error('❌ Failed to parse GOOGLE_APPLICATION_CREDENTIALS_JSON:', err);
+        const cleanedText = text.replace(/```json/g, '').replace(/```/g, '').trim();
+        return JSON.parse(cleanedText);
+    } catch (e) {
+        console.error("Failed to parse JSON:", text);
+        return { error: "Failed to parse", raw_text: text };
     }
 }
 
@@ -376,24 +428,22 @@ async function handler(req, res) {
                 .filter(key => key.endsWith('_storage_path') && key !== 'video_note_storage_path')
                 .map(key => otherData[key]);
 
-            // 2. Вызываем Google Cloud Vision OCR
+            // 2. Вызываем Gemini OCR
             let recognized_data = {};
             if (imagePathsToRecognize.length > 0) {
                 try {
-                    console.log(`Starting Vision OCR for user ${telegram_user_id} with files:`, imagePathsToRecognize);
-                    recognized_data = await recognizeDocumentsWithVision(
+                    console.log(`Starting Gemini OCR for user ${telegram_user_id} with files:`, imagePathsToRecognize);
+                    recognized_data = await recognizeDocumentsWithGemini(
                         supabaseAdmin,
                         imagePathsToRecognize,
                         otherData.citizenship || 'ru'
                     );
-                    console.log(`Vision OCR result for user ${telegram_user_id}:`, recognized_data);
+                    console.log(`Gemini OCR result for user ${telegram_user_id}:`, recognized_data);
                 } catch (e) {
-                    console.error("Vision OCR failed:", e);
-                    // Можно не прерывать регистрацию, а просто записать ошибку
+                    console.error("Gemini OCR failed:", e);
                     recognized_data = { error: `Recognition failed: ${e.message}` };
                 }
             }
-            // +++ КОНЕЦ ЛОГИКИ РАСПОЗНАВАНИЯ +++
 
             const extra = {
                 ...otherData,

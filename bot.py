@@ -55,8 +55,10 @@ if not SUPABASE_URL or not SUPABASE_SERVICE_KEY:
     logger.critical("SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY must be set!")
     # In production, exit here
 
+logger.info(f"🔗 Connecting to Supabase: {SUPABASE_URL}")
+logger.info(f"🔑 Using SERVICE_ROLE_KEY: {SUPABASE_SERVICE_KEY[:20]}...")
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_SERVICE_KEY)
-logger.info("Supabase client initialized.")
+logger.info("✅ Supabase client initialized.")
 
 # --- Инициализация Aiogram ---
 bot = Bot(token=TOKEN)
@@ -643,11 +645,20 @@ async def process_video_note(message: Message, state: FSMContext):
 
                 # Загружаем ЛЮБОЙ файл в Supabase Storage
                 storage_path = f"{user_id}/{key}.{content_type.split('/')[1]}" # e.g., .../passport_main.jpeg or .../video_note.mp4
-                supabase.storage.from_("passports").upload(
+                
+                logger.info(f"📤 Uploading {key} to Storage: {storage_path}, size: {len(file_bytes)} bytes")
+                
+                upload_response = supabase.storage.from_("passports").upload(
                     path=storage_path,
                     file=file_bytes,
                     file_options={"content-type": content_type, "upsert": "true"}
                 )
+                
+                logger.info(f"✅ Upload response for {key}: {upload_response}")
+                
+                # Проверяем, что файл действительно загрузился
+                list_response = supabase.storage.from_("passports").list(str(user_id))
+                logger.info(f"📁 Files in user folder after upload: {list_response}")
 
                 # Заменяем file_id на путь в Storage прямо в user_data
                 user_data[key + '_storage_path'] = storage_path
