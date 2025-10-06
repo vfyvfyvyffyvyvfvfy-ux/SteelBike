@@ -82,7 +82,7 @@ const translations = {
         support: 'Поддержка',
         contact_support: 'Связаться с поддержкой',
         faq: 'Частые вопросы',
-        
+
         // Modals
         bike_booking: 'Бронирование велосипеда',
         enter_bike_id: 'Ввести ID велосипеда',
@@ -182,7 +182,7 @@ const translations = {
         support: 'Support',
         contact_support: 'Contact Support',
         faq: 'FAQ',
-        
+
         // Modals
         bike_booking: 'Bike Booking',
         enter_bike_id: 'Enter Bike ID',

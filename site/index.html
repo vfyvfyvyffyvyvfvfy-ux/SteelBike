@@ -379,7 +379,7 @@
                 <span>Срок: <strong id="tariff-duration">7 дней</strong></span>
             </div>
             <p id="tariff-description" style="margin: 10px 0; font-size: 0.9rem; color: var(--text-secondary);"></p>
-            <p class="disclaimer-text">Оплачивая, вы соглашаетесь с условиями сервиса и автоплатежами.</p>
+            <p class="disclaimer-text" data-i18n="paying_agree_terms">Оплачивая, вы соглашаетесь с условиями сервиса и автоплатежами.</p>
             <button class="btn btn-primary" id="rent-btn" data-action="rent">Арендовать</button>
         </div>
     </div>
@@ -423,14 +423,13 @@
             </p>
             <div id="booking-cost-info"
                 style="display: none; background-color: var(--card-bg); padding: 15px; border-radius: 12px; margin: 15px 0;">
-                <p style="margin: 0; font-weight: 500;">Стоимость бронирования: <span id="booking-cost-amount"
+                <p style="margin: 0; font-weight: 500;"><span data-i18n="booking_cost">Стоимость бронирования</span>: <span id="booking-cost-amount"
                         style="font-weight: 600;"></span></p>
                 <p id="booking-payment-method-text"
                     style="margin: 5px 0 0 0; font-size: 0.9rem; color: var(--text-secondary);"></p>
             </div>
-            <p class="disclaimer-text">Если вы не заберете велосипед, бронь отменится, а деньги останутся на вашем
-                балансе.</p>
-            <button class="btn btn-primary" id="confirm-booking-btn">Забронировать и оплатить</button>
+            <p class="disclaimer-text" data-i18n="booking_disclaimer">Если вы не заберете велосипед, бронь отменится, а деньги останутся на вашем балансе.</p>
+            <button class="btn btn-primary" id="confirm-booking-btn" data-i18n="book_and_pay">Забронировать и оплатить</button>
         </div>
     </div>
     <div id="tariff-modal" class="modal-overlay hidden">
@@ -445,7 +444,7 @@
                 <div class="bike-list-item tariff-option" data-tariff="gold"><strong>Золото</strong><span>3750 ₽ / 7
                         дней</span></div>
             </div>
-            <p class="disclaimer-text">Оплачивая, вы соглашаетесь с условиями сервиса и автоплатежами.</p>
+            <p class="disclaimer-text" data-i18n="paying_agree_terms">Оплачивая, вы соглашаетесь с условиями сервиса и автоплатежами.</p>
         </div>
     </div>
     <div id="tariff-detail-modal" class="modal-overlay hidden">
@@ -2237,7 +2236,7 @@
                             item.innerHTML = `
                                 <div style="display: flex; flex-direction: column; gap: 4px; width: 100%;">
                                     <strong>${t.title}</strong>
-                                    <span style="color: #ff4757 !important; font-weight: 600 !important; font-size: 0.9em;">Нет свободных велосипедов</span>
+                                    <span style="color: #ff4757 !important; font-weight: 600 !important; font-size: 0.9em;" data-i18n="no_bikes_available">Нет свободных велосипедов</span>
                                 </div>
                             `;
                             item.style.cursor = 'not-allowed';
@@ -2541,8 +2540,11 @@
                             const mainTextEl = document.getElementById('booking-main-text');
 
                             if (cost > 0) {
+                                const lang = localStorage.getItem('userLanguage') || 'ru';
+                                const amountCharged = lang === 'en' ? 'The amount will be charged from your card and credited to your balance' : 'Сумма будет списана с вашей карты и зачислена на баланс';
+                                
                                 costInfoEl.querySelector('#booking-cost-amount').textContent = `${cost} ₽`;
-                                costInfoEl.querySelector('#booking-payment-method-text').textContent = 'Сумма будет списана с вашей карты и зачислена на баланс';
+                                costInfoEl.querySelector('#booking-payment-method-text').textContent = amountCharged;
                                 costInfoEl.style.display = 'block';
                                 mainTextEl.style.display = 'none'; // Скрываем основной текст
                             } else {
