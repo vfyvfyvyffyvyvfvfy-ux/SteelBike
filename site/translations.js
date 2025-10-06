@@ -263,6 +263,7 @@ function setUserLanguage(lang) {
 function updatePageLanguage() {
     const lang = getUserLanguage();
     console.log('🌍 [LANG] updatePageLanguage() called, lang:', lang);
+    console.log('🌍 [LANG] Sample translation test - linked_card:', t('linked_card', lang));
 
     const elementsWithI18n = document.querySelectorAll('[data-i18n]');
     console.log('🌍 [LANG] Found', elementsWithI18n.length, 'elements with data-i18n');
@@ -270,7 +271,7 @@ function updatePageLanguage() {
     elementsWithI18n.forEach(element => {
         const key = element.getAttribute('data-i18n');
         const translation = t(key, lang);
-        console.log('🌍 [LANG] Translating:', key, '→', translation);
+        console.log('🌍 [LANG] Translating:', key, '→', translation, '| Key exists in translations:', key in (translations[lang] || {}));
         element.textContent = translation;
     });
 
