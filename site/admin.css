@@ -1704,9 +1704,9 @@ select:focus::placeholder {
 
 /* Status color schemes */
 .status-success {
-  background: #e6fffa;
-  color: #0f766e;
-  border: 1px solid #99f6e4;
+  background: #ffe5e5;
+  color: #8B0000;
+  border: 1px solid #ffb3b3;
 }
 
 .status-warning {

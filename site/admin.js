@@ -1822,15 +1822,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 datasets: [{
                     label: 'Доход по дням, ₽',
                     data: chartData,
-                    // --- ИЗМЕНЕНИЕ №2: Замена красного цвета на темно-зеленый для "сегодня" ---
+                    // --- ИЗМЕНЕНИЕ №2: Замена зеленого цвета на красный для "сегодня" ---
                     backgroundColor: (context) => {
                         const label = labels[context.dataIndex];
-                        // Если сегодня - используем темно-зеленый, в остальные дни - обычный зеленый.
-                        return label === today ? 'rgba(8, 56, 48, 0.8)' : 'rgba(38, 185, 153, 0.6)';
+                        // Если сегодня - используем темно-красный, в остальные дни - обычный красный.
+                        return label === today ? 'rgba(139, 0, 0, 0.8)' : 'rgba(224, 32, 32, 0.6)';
                     },
                     borderColor: (context) => {
                         const label = labels[context.dataIndex];
-                        return label === today ? 'rgba(8, 56, 48, 1)' : 'rgba(38, 185, 153, 1)';
+                        return label === today ? 'rgba(139, 0, 0, 1)' : 'rgba(224, 32, 32, 1)';
                     },
                     borderWidth: 1,
                     borderRadius: 4,
