@@ -543,7 +543,7 @@
     <div id="card-modal" class="modal-overlay hidden">
         <div class="modal-content">
             <button class="modal-close">&times;</button>
-            <h2 id="card-modal-title">Способ оплаты</h2>
+            <h2 id="card-modal-title" data-i18n="payment_method">Способ оплаты</h2>
 
             <div id="card-view-container">
                 <!-- JS will render content here -->
@@ -664,7 +664,7 @@
                         <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
                         <circle cx="12" cy="10" r="3"></circle>
                     </svg>
-                    <span>Москва</span>
+                    <span data-i18n="moscow">Москва</span>
                     <svg class="city-check hidden" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
                         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"
                         stroke-linejoin="round">
@@ -677,7 +677,7 @@
                         <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
                         <circle cx="12" cy="10" r="3"></circle>
                     </svg>
-                    <span>Санкт-Петербург</span>
+                    <span data-i18n="saint_petersburg">Санкт-Петербург</span>
                     <svg class="city-check hidden" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
                         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"
                         stroke-linejoin="round">
@@ -994,10 +994,10 @@
                 } catch (error) {
                     cardViewContainer.innerHTML = `
                     <div id="card-form-view">
-                        <p style="margin-bottom: 20px; color: var(--dark-green);">
+                        <p style="margin-bottom: 20px; color: var(--dark-green);" data-i18n="no_linked_card">
                             У вас еще нет привязанной карты. Вы можете привязать ее сейчас или она будет автоматически сохранена после первой успешной оплаты.
                         </p>
-                        <button class="btn btn-primary" id="add-card-btn" style="width: 100%;">Привязать карту</button>
+                        <button class="btn btn-primary" id="add-card-btn" style="width: 100%;" data-i18n="link_card">Привязать карту</button>
                     </div>`;
                     document.getElementById('add-card-btn').addEventListener('click', handleAddCardClick);
                 } finally {
@@ -1076,7 +1076,9 @@
                         });
                     } else {
                         countEl.style.display = 'none';
-                        notificationsList.innerHTML = '<p>У вас нет новых уведомлений.</p>';
+                        const lang = localStorage.getItem('userLanguage') || 'ru';
+                        const noNotifications = lang === 'en' ? 'You have no new notifications.' : 'У вас нет новых уведомлений.';
+                        notificationsList.innerHTML = `<p>${noNotifications}</p>`;
                     }
                 } catch (error) {
                     console.error('Error loading notifications:', error);
