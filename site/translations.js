@@ -81,7 +81,23 @@ const translations = {
         // Support
         support: 'Поддержка',
         contact_support: 'Связаться с поддержкой',
-        faq: 'Частые вопросы'
+        faq: 'Частые вопросы',
+        
+        // Modals
+        bike_booking: 'Бронирование велосипеда',
+        enter_bike_id: 'Ввести ID велосипеда',
+        bike_id: 'ID велосипеда',
+        find_and_rent_btn: 'Найти и арендовать',
+        booking_cost: 'Стоимость бронирования',
+        amount_charged: 'Сумма будет списана с вашей карты и зачислена на баланс',
+        booking_disclaimer: 'Если вы не заберете велосипед, бронь отменится, а деньги останутся на вашем балансе.',
+        book_and_pay: 'Забронировать и оплатить',
+        topup_balance: 'Пополнение баланса',
+        topup_amount: 'Сумма пополнения',
+        enter_amount_rub: 'Введите сумму в ₽',
+        topup: 'Пополнить',
+        no_bikes_available: 'Нет свободных велосипедов',
+        paying_agree_terms: 'Оплачивая, вы соглашаетесь с условиями сервиса и автоплатежами.'
     },
 
     en: {
@@ -165,7 +181,23 @@ const translations = {
         // Support
         support: 'Support',
         contact_support: 'Contact Support',
-        faq: 'FAQ'
+        faq: 'FAQ',
+        
+        // Modals
+        bike_booking: 'Bike Booking',
+        enter_bike_id: 'Enter Bike ID',
+        bike_id: 'Bike ID',
+        find_and_rent_btn: 'Find and Rent',
+        booking_cost: 'Booking Cost',
+        amount_charged: 'The amount will be charged from your card and credited to your balance',
+        booking_disclaimer: 'If you don\'t pick up the bike, the booking will be cancelled and the money will remain in your balance.',
+        book_and_pay: 'Book and Pay',
+        topup_balance: 'Top Up Balance',
+        topup_amount: 'Top Up Amount',
+        enter_amount_rub: 'Enter amount in ₽',
+        topup: 'Top Up',
+        no_bikes_available: 'No bikes available',
+        paying_agree_terms: 'By paying, you agree to the terms of service and autopayments.'
     }
 };
 

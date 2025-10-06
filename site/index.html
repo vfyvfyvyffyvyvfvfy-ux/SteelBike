@@ -386,13 +386,13 @@
     <div id="id-input-modal" class="modal-overlay hidden">
         <div class="modal-content">
             <button class="modal-close" id="id-input-modal-close-btn">&times;</button>
-            <h2>Ввести ID велосипеда</h2>
+            <h2 data-i18n="enter_bike_id">Ввести ID велосипеда</h2>
             <div class="modal-form-group">
-                <label for="bike-id-input">ID велосипеда</label>
+                <label for="bike-id-input" data-i18n="bike_id">ID велосипеда</label>
                 <input type="text" id="bike-id-input" placeholder="Например: 00001">
             </div>
-            <button class="btn btn-primary" id="confirm-id-btn">Найти и арендовать</button>
-        </div>ф
+            <button class="btn btn-primary" id="confirm-id-btn" data-i18n="find_and_rent_btn">Найти и арендовать</button>
+        </div>
     </div>
     <div id="booking-list-modal" class="modal-overlay hidden">
         <div class="modal-content">
@@ -416,7 +416,7 @@
     <div id="confirm-booking-modal" class="modal-overlay hidden">
         <div class="modal-content">
             <button class="modal-close" id="confirm-booking-close-btn">&times;</button>
-            <h2>Бронирование велосипеда</h2>
+            <h2 data-i18n="bike_booking">Бронирование велосипеда</h2>
             <p id="booking-main-text" style="color: var(--text-secondary); margin: 20px 0; line-height: 1.5;">
                 Вы забронируете электровелосипед на <strong>2 часа</strong>. Пожалуйста, подъедьте к точке выдачи до
                 истечения этого времени.
@@ -436,7 +436,7 @@
     <div id="tariff-modal" class="modal-overlay hidden">
         <div class="modal-content">
             <button class="modal-close" id="tariff-modal-close-btn">&times;</button>
-            <h2>Тарифы</h2>
+            <h2 data-i18n="tariffs">Тарифы</h2>
             <div class="bike-list">
                 <div class="bike-list-item tariff-option" data-tariff="bronze"><strong>Бронза</strong><span>1000 ₽ / 3
                         дня</span></div>
@@ -465,12 +465,12 @@
     <div id="topup-modal" class="modal-overlay hidden">
         <div class="modal-content">
             <button class="modal-close" id="topup-modal-close-btn">&times;</button>
-            <h2>Пополнение баланса</h2>
+            <h2 data-i18n="topup_balance">Пополнение баланса</h2>
             <div class="modal-form-group">
-                <label for="amount-input" style="text-align: center;">Сумма пополнения</label>
-                <input type="number" id="amount-input" placeholder="Введите сумму в ₽">
+                <label for="amount-input" style="text-align: center;" data-i18n="topup_amount">Сумма пополнения</label>
+                <input type="number" id="amount-input" data-i18n-placeholder="enter_amount_rub" placeholder="Введите сумму в ₽">
             </div>
-            <button class="btn btn-primary" id="pay-sbp-btn">Пополнить</button>
+            <button class="btn btn-primary" id="pay-sbp-btn" data-i18n="topup">Пополнить</button>
         </div>
     </div>
     <div id="extend-modal" class="modal-overlay hidden">
