@@ -2617,7 +2617,13 @@
             });
 
             // При загрузке страницы сначала загружаем язык, потом данные пользователя
+            console.log('🌍 [LANG] ========== PAGE LOAD START ==========');
+            console.log('🌍 [LANG] Initial localStorage.userLanguage:', localStorage.getItem('userLanguage'));
+            console.log('🌍 [LANG] Initial localStorage.userId:', localStorage.getItem('userId'));
+            
             loadUserLanguage().then(() => {
+                console.log('🌍 [LANG] loadUserLanguage() completed');
+                console.log('🌍 [LANG] After load localStorage.userLanguage:', localStorage.getItem('userLanguage'));
                 loadUserData();
             });
             // После восстановления состояния проверяем, есть ли активная аренда
