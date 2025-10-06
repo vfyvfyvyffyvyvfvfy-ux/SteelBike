@@ -372,7 +372,10 @@
     </script>
     <script src="menu.js" defer></script>
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Загружаем язык пользователя из базы данных
+            await loadUserLanguageFromDB();
+            
             // Проверяем, что API Telegram доступен
             if (window.Telegram && window.Telegram.WebApp) {
                 const tg = window.Telegram.WebApp;
@@ -381,6 +384,33 @@
                 tg.setHeaderColor('#ffffff');
             }
         });
+
+        // Функция для загрузки языка из базы данных
+        async function loadUserLanguageFromDB() {
+            const userId = localStorage.getItem('userId');
+            if (!userId) return;
+
+            const SUPABASE_URL = window.CONFIG.SUPABASE_URL;
+            const SUPABASE_ANON_KEY = window.CONFIG.SUPABASE_ANON_KEY;
+            const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+            try {
+                const { data: client, error } = await supabase
+                    .from('clients')
+                    .select('extra')
+                    .eq('id', userId)
+                    .single();
+
+                if (!error && client && client.extra && client.extra.language) {
+                    localStorage.setItem('userLanguage', client.extra.language);
+                    if (typeof updatePageLanguage === 'function') {
+                        updatePageLanguage();
+                    }
+                }
+            } catch (err) {
+                console.log('Could not load user language:', err);
+            }
+        }
     </script>
 </body>
 

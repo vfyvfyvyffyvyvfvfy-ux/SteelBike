@@ -718,7 +718,10 @@
         const SUPABASE_ANON_KEY = window.CONFIG.SUPABASE_ANON_KEY;
         const CONTRACTS_API_URL = window.CONFIG.CONTRACTS_API_URL;
 
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Загружаем язык пользователя из базы данных
+            await loadUserLanguageFromDB();
+            
             if (window.location.hash === '#support') {
                 setTimeout(() => {
                     openModal('support-modal');
@@ -766,6 +769,29 @@
                     },
                 },
             });
+
+            // Функция для загрузки языка из базы данных
+            async function loadUserLanguageFromDB() {
+                const userId = localStorage.getItem('userId');
+                if (!userId) return;
+
+                try {
+                    const { data: client, error } = await supabase
+                        .from('clients')
+                        .select('extra')
+                        .eq('id', userId)
+                        .single();
+
+                    if (!error && client && client.extra && client.extra.language) {
+                        localStorage.setItem('userLanguage', client.extra.language);
+                        if (typeof updatePageLanguage === 'function') {
+                            updatePageLanguage();
+                        }
+                    }
+                } catch (err) {
+                    console.log('Could not load user language:', err);
+                }
+            }
 
             // --- ОБЩАЯ ЛОГИКА МОДАЛЬНЫХ ОКОН ---
             const modalTriggers = document.querySelectorAll('[data-modal-target]');
